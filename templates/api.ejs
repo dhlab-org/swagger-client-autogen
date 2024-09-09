@@ -1,0 +1,29 @@
+<%
+const { utils, route, config, modelTypes } = it;
+const { _, pascalCase, require } = utils;
+const apiClassName = pascalCase(route.moduleName);
+const routes = route.routes;
+const dataContracts = _.map(modelTypes, "name");
+%>
+
+import ky, { KyInstance } from 'ky';
+
+<% if (dataContracts.length) { %>
+import { <%~ dataContracts.join(", ") %>, kyInstance } from "@/shared/api"
+<% } %>
+
+export class <%= apiClassName %>Api {
+private readonly instance: KyInstance;
+
+constructor(instance: KyInstance) {
+this.instance = instance;
+}
+
+<% for (const route of routes) { %>
+<%~ includeFile('./procedure-call.ejs', { ...it, route }) %>
+<% } %>
+}
+
+const <%= route.moduleName %>Api = new <%= apiClassName %>Api(kyInstance);
+
+export { <%= route.moduleName %>Api };

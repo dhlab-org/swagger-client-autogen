@@ -1,0 +1,26 @@
+{
+  "name": "swagger-client-autogen",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "fetch-swagger": "./scripts/fetch-swagger.js",
+    "generate-all": "./scripts/generate-all.js",
+    "generate-msw": "./scripts/generate-msw.js"
+  },
+  "devDependencies": {
+    "js-yaml": "^4.1.0",
+    "minimist": "^1.2.8",
+    "msw-auto-mock": "^0.25.0",
+    "node-fetch": "^3.3.2",
+    "swagger-typescript-api": "^13.0.22"
+  }
+}
