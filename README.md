@@ -104,9 +104,11 @@ fetch-swagger --url <swagger-url> [--username <username>] [--password <password>
 
 #### 옵션 설명
 
-- `--url` 또는 `-u`: 가져올 Swagger 문서의 URL을 지정합니다. 이 옵션은 필수입니다.
-- `--username` 또는 `--un`: (선택) HTTP Basic Authentication을 위한 사용자 이름을 지정합니다.
-- `--password` 또는 `--pw`: (선택) HTTP Basic Authentication을 위한 비밀번호를 지정합니다.
+| 옵션              | 설명                                                    | 필수 여부 |
+|-------------------|---------------------------------------------------------|-----------|
+| `--url`, `-u`     | 가져올 Swagger 문서의 URL을 지정합니다.                  | 필수      |
+| `--username`, `-un`| HTTP Basic Authentication을 위한 사용자 이름을 지정합니다.| 선택      |
+| `--password`, `-pw`| HTTP Basic Authentication을 위한 비밀번호를 지정합니다.  | 선택      |
 
 #### 예시
 
@@ -157,18 +159,22 @@ generate-all --uri <swagger-url|swagger-file-name> [--username <username>] [--pa
 
 #### 옵션 설명
 
-- `--uri` 또는 `-u`: Swagger 문서의 URL 또는 로컬 파일 경로를 지정합니다. 필수 옵션입니다.
-- `--username` 또는 `--un`: (선택) HTTP Basic Authentication을 위한 사용자 이름을 지정합니다.
-- `--password` 또는 `--pw`: (선택) HTTP Basic Authentication을 위한 비밀번호를 지정합니다.
-- `--dto-output-path` 또는 `--dp`: (선택) DTO 파일을 출력할 경로를 지정합니다. 지정하지 않으면 기본 경로인 `src/shared/api/dto.ts`에 저장됩니다.
-- `--api-output-path` 또는 `--ap`: (선택) API 클라이언트 파일을 출력할 경로를 지정합니다. **`{moduleName}`**을 포함하여 경로를 지정하면 이 부분이 Swagger 문서의 모듈 이름으로 대체됩니다. 지정하지 않으면 기본 경로인 `src/entities/{moduleName}/api/index.ts`에 저장됩니다.
-- `--query-output-path` 또는 `--qp`: (선택) Query 파일을 출력할 경로를 지정합니다. **`{moduleName}`**을 포함하여 경로를 지정하면 이 부분이 Swagger 문서의 모듈 이름으로 대체됩니다. 지정하지 않으면 기본 경로인 `src/entities/{moduleName}/api/queries.ts`에 저장됩니다.
-- `--mutation-output-path` 또는 `--mp`: (선택) Mutation 파일을 출력할 경로를 지정합니다. **`{moduleName}`**을 포함하여 경로를 지정하면 이 부분이 Swagger 문서의 모듈 이름으로 대체됩니다. 지정하지 않으면 기본 경로인 `src/entities/{moduleName}/api/mutations.ts`에 저장됩니다.
+| 옵션                   | 설명                                                                                          | 필수 여부 |
+|------------------------|-----------------------------------------------------------------------------------------------|-----------|
+| `--uri`, `-u`          | Swagger 문서의 URL 또는 로컬 파일 경로를 지정합니다.                                           | 필수      |
+| `--username`, `-un`    | HTTP Basic Authentication을 위한 사용자 이름을 지정합니다.                                      | 선택      |
+| `--password`, `-pw`    | HTTP Basic Authentication을 위한 비밀번호를 지정합니다.                                        | 선택      |
+| `--dto-output-path`, `-dp` | DTO 파일을 출력할 경로를 지정합니다. 지정하지 않으면 기본 경로인 `src/shared/api/dto.ts`에 저장됩니다.| 선택      |
+| `--api-output-path`, `-ap` | API 클라이언트 파일을 출력할 경로를 지정합니다. **`{moduleName}`**을 포함하면 모듈 이름으로 대체됩니다.  | 선택      |
+| `--query-output-path`, `-qp`| Query 파일을 출력할 경로를 지정합니다. **`{moduleName}`**을 포함하면 모듈 이름으로 대체됩니다.          | 선택      |
+| `--mutation-output-path`, `-mp`| Mutation 파일을 출력할 경로를 지정합니다. **`{moduleName}`**을 포함하면 모듈 이름으로 대체됩니다.    | 선택      |
 
 > **🔔 `{moduleName}`에 대한 설명**
 >
 > `--api-output-path`, `--query-output-path`, `--mutation-output-path` 경로에서 `{moduleName}`을 사용하면, Swagger 문서에서 가져온 모듈 이름으로 자동 대체됩니다.
 > 예를 들어, 모듈 이름이 `User`인 경우, `{moduleName}`이 포함된 경로는 자동으로 `user`로 변환됩니다.
+
+---
 
 #### 예시
 
@@ -229,8 +235,10 @@ generate-msw --swagger-path <swagger-path> [--api-base-url <api-base-url>]
 
 #### 옵션 설명
 
-- `--swagger-path` 또는 `-s`: Swagger 파일의 경로를 지정합니다. 이 옵션은 필수입니다.
-- `--api-base-url` 또는 `-a`: (선택) API 기본 URL을 지정합니다. 기본값은 `https://api.example.com/v1`입니다.
+| 옵션                  | 설명                                                        | 필수 여부 |
+|-----------------------|-------------------------------------------------------------|-----------|
+| `--swagger-path`, `-s`| Swagger 파일의 경로를 지정합니다.                           | 필수      |
+| `--api-base-url`, `-a`| API 기본 URL을 지정합니다. 기본값은 `https://api.example.com/v1`입니다. | 선택      |
 
 #### 예시
 
