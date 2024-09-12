@@ -12,6 +12,7 @@ const argv = minimist(process.argv.slice(2), {
     'password',
     'dto-output-path',
     'api-output-path',
+    'api-instance-output-path',
     'query-output-path',
     'mutation-output-path',
   ],
@@ -21,6 +22,7 @@ const argv = minimist(process.argv.slice(2), {
     pw: 'password',
     dp: 'dto-output-path',
     ap: 'api-output-path',
+    aip: 'api-instance-output-path',
     qp: 'query-output-path',
     mp: 'mutation-output-path',
   },
@@ -32,6 +34,7 @@ const {
   password,
   'dto-output-path': dtoOutputPath,
   'api-output-path': apiOutputPath,
+  'api-instance-output-path': apiInstanceOutputPath,
   'query-output-path': queryOutputPath,
   'mutation-output-path': mutationOutputPath,
 } = argv;
@@ -39,7 +42,7 @@ const {
 const outputPath = {
   dto: dtoOutputPath ?? path.resolve(process.cwd(), 'src/shared/api/dto.ts'),
   api: apiOutputPath ?? path.resolve(process.cwd(), 'src/entities/{moduleName}/api/index.ts'),
-  apiInstance: apiOutputPath ?? path.resolve(process.cwd(), 'src/entities/{moduleName}/api/instance.ts'),
+  apiInstance: apiInstanceOutputPath ?? path.resolve(process.cwd(), 'src/entities/{moduleName}/api/instance.ts'),
   query: queryOutputPath ?? path.resolve(process.cwd(), 'src/entities/{moduleName}/api/queries.ts'),
   mutation:
     mutationOutputPath ?? path.resolve(process.cwd(), 'src/entities/{moduleName}/api/mutations.ts'),
