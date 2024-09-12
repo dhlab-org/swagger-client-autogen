@@ -23,7 +23,3 @@ this.instance = instance;
 <%~ includeFile('./procedure-call.ejs', { ...it, route }) %>
 <% } %>
 }
-
-const <%= route.moduleName %>Api = new <%= apiClassName %>Api(kyInstance);
-
-export { <%= route.moduleName %>Api };

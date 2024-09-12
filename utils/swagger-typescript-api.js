@@ -19,6 +19,7 @@ const isUrl = (string) => {
 export const generateCode = async (type, uri, username, password) => {
   const templatePath = {
     api: path.resolve(__dirname, '../templates'),
+    apiInstance: path.resolve(__dirname, '../templates/api-instance'),
     query: path.resolve(__dirname, `../templates/queries`),
     mutation: path.resolve(__dirname, `../templates/mutations`),
   };

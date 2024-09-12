@@ -67,7 +67,7 @@ useQueryClient,
 
 import { <%~ modelTypes.map(v=>v.name) %> } from '@/shared/api';
 
-import { <%= moduleName %>Api } from './index';
+import { <%= moduleName %>Api } from './instance';
 
 const mutations = {
 <% for (const config of mutationConfigs) { %>

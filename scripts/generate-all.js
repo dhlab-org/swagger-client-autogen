@@ -39,6 +39,7 @@ const {
 const outputPath = {
   dto: dtoOutputPath ?? path.resolve(process.cwd(), 'src/shared/api/dto.ts'),
   api: apiOutputPath ?? path.resolve(process.cwd(), 'src/entities/{moduleName}/api/index.ts'),
+  apiInstance: apiOutputPath ?? path.resolve(process.cwd(), 'src/entities/{moduleName}/api/instance.ts'),
   query: queryOutputPath ?? path.resolve(process.cwd(), 'src/entities/{moduleName}/api/queries.ts'),
   mutation:
     mutationOutputPath ?? path.resolve(process.cwd(), 'src/entities/{moduleName}/api/mutations.ts'),
@@ -66,11 +67,13 @@ if (!uri) {
 
 try {
   const apiAndDtoCode = await generateCode('api', uri, username, password);
+  const apiInstanceCode = await generateCode('apiInstance', uri, username, password);
   const queriesCode = await generateCode('query', uri, username, password);
   const mutationsCode = await generateCode('mutation', uri, username, password);
 
   await saveDto(outputPath.dto, apiAndDtoCode.files);
   await saveEntitiesFile(outputPath.api, apiAndDtoCode.files);
+  await saveEntitiesFile(outputPath.apiInstance, apiInstanceCode.files);
   await saveEntitiesFile(outputPath.query, queriesCode.files);
   await saveEntitiesFile(outputPath.mutation, mutationsCode.files);
 } catch (e) {
