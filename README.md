@@ -153,21 +153,23 @@ swagger/swagger-api.yml
 generate-all --uri <swagger-url|swagger-file-name> [--username <username>] [--password <password>]
 [--dto-output-path <dto-output-path>]
 [--api-output-path <api-output-path>]
+[--api-instance-output-path <api-instance-output-path>]
 [--query-output-path <query-output-path>]
 [--mutation-output-path <mutation-output-path>]
 ```
 
 #### 옵션 설명
 
-| 옵션                   | 설명                                                                                          | 필수 여부 |
-|------------------------|-----------------------------------------------------------------------------------------------|-----------|
-| `--uri`, `-u`          | Swagger 문서의 URL 또는 로컬 파일 경로를 지정합니다.                                           | 필수      |
-| `--username`, `-un`    | HTTP Basic Authentication을 위한 사용자 이름을 지정합니다.                                      | 선택      |
-| `--password`, `-pw`    | HTTP Basic Authentication을 위한 비밀번호를 지정합니다.                                        | 선택      |
-| `--dto-output-path`, `-dp` | DTO 파일을 출력할 경로를 지정합니다. 지정하지 않으면 기본 경로인 `src/shared/api/dto.ts`에 저장됩니다.| 선택      |
-| `--api-output-path`, `-ap` | API 클라이언트 파일을 출력할 경로를 지정합니다. **`{moduleName}`**을 포함하면 모듈 이름으로 대체됩니다.  | 선택      |
-| `--query-output-path`, `-qp`| Query 파일을 출력할 경로를 지정합니다. **`{moduleName}`**을 포함하면 모듈 이름으로 대체됩니다.          | 선택      |
-| `--mutation-output-path`, `-mp`| Mutation 파일을 출력할 경로를 지정합니다. **`{moduleName}`**을 포함하면 모듈 이름으로 대체됩니다.    | 선택      |
+| 옵션                                   | 설명                                                                         | 필수 여부 |
+|--------------------------------------|----------------------------------------------------------------------------|-----------|
+| `--uri`, `-u`                        | Swagger 문서의 URL 또는 로컬 파일 경로를 지정합니다.                                        | 필수      |
+| `--username`, `-un`                  | HTTP Basic Authentication을 위한 사용자 이름을 지정합니다.                               | 선택      |
+| `--password`, `-pw`                  | HTTP Basic Authentication을 위한 비밀번호를 지정합니다.                                 | 선택      |
+| `--dto-output-path`, `-dp`           | DTO 파일을 출력할 경로를 지정합니다. 지정하지 않으면 기본 경로인 `src/shared/api/dto.ts`에 저장됩니다.     | 선택      |
+| `--api-output-path`, `-ap`           | API 클라이언트 파일을 출력할 경로를 지정합니다. **`{moduleName}`**을 포함하면 모듈 이름으로 대체됩니다.       | 선택      |
+| `--api-instance-output-path`, `-aip` | API 클라이언트의 인스턴스 파일을 출력할 경로를 지정합니다. **`{moduleName}`**을 포함하면 모듈 이름으로 대체됩니다. | 선택      |
+| `--query-output-path`, `-qp`         | Query 파일을 출력할 경로를 지정합니다. **`{moduleName}`**을 포함하면 모듈 이름으로 대체됩니다.           | 선택      |
+| `--mutation-output-path`, `-mp`      | Mutation 파일을 출력할 경로를 지정합니다. **`{moduleName}`**을 포함하면 모듈 이름으로 대체됩니다.        | 선택      |
 
 > **🔔 `{moduleName}`에 대한 설명**
 >
@@ -196,6 +198,7 @@ generate-all --uri http://example.com/swagger.json --username admin --password s
 generate-all --uri http://example.com/swagger.json
 --dto-output-path ./custom/path/dto.ts
 --api-output-path ./custom/path/{moduleName}/api/index.ts
+--api-instance-output-path ./custom/path/{moduleName}/api/instance.ts
 --query-output-path ./custom/path/{moduleName}/api/queries.ts
 --mutation-output-path ./custom/path/{moduleName}/api/mutations.ts
 ```
@@ -203,6 +206,7 @@ generate-all --uri http://example.com/swagger.json
 이 경우, Swagger 문서에서 모듈 이름이 `User`라면, 다음과 같은 파일 경로로 파일이 생성됩니다:
 
 - API 클라이언트: `./custom/path/user/api/index.ts`
+- API 클라이언트 인스턴스: `./custom/path/user/api/instance.ts`
 - Query 파일: `./custom/path/user/api/queries.ts`
 - Mutation 파일: `./custom/path/user/api/mutations.ts`
 
@@ -212,6 +216,7 @@ generate-all --uri http://example.com/swagger.json
 
 - DTO 파일: `src/shared/api/dto.ts` (또는 지정된 경로)
 - API 클라이언트 파일: `src/entities/{moduleName}/api/index.ts` (또는 지정된 경로)
+- API 클라이언트 인스턴스 파일: `src/entities/{moduleName}/api/instance.ts` (또는 지정된 경로)
 - Query 파일: `src/entities/{moduleName}/api/queries.ts` (또는 지정된 경로)
 - Mutation 파일: `src/entities/{moduleName}/api/mutations.ts` (또는 지정된 경로)
 
