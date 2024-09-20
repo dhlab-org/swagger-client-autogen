@@ -8,6 +8,8 @@ const dataContracts = _.map(modelTypes, "name");
 
 import { kyInstance } from "@/shared/api"
 
+import { <%= apiClassName %>Api } from './index'
+
 const <%= route.moduleName %>Api = new <%= apiClassName %>Api(kyInstance);
 
 export { <%= route.moduleName %>Api };

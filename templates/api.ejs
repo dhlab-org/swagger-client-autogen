@@ -6,10 +6,10 @@ const routes = route.routes;
 const dataContracts = _.map(modelTypes, "name");
 %>
 
-import ky, { KyInstance } from 'ky';
+import { KyInstance, Options } from 'ky';
 
 <% if (dataContracts.length) { %>
-import { <%~ dataContracts.join(", ") %>, kyInstance } from "@/shared/api"
+import { <%~ dataContracts.join(", ") %> } from "@/shared/api"
 <% } %>
 
 export class <%= apiClassName %>Api {
