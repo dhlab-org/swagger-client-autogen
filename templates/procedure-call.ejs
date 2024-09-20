@@ -20,9 +20,19 @@ const generateParams = (params, query, payload) => {
     const paramList = [
         ...(params ? params.map(param => `${param.name}${param.optional ? '?' : ''}: ${param.type}`) : []),
         ...(query ? [`params${query.optional ? '?' : ''}: ${query.type}`] : []),
-        ...(payload ? [`data${payload.optional ? '?' : ''}: ${payload.type}`] : []),
-        'kyInstance?: KyInstance'
+        ...(payload ? [`data${payload.optional ? '?' : ''}: ${payload.type}`] : [])
     ];
+
+    const omitTypes = [
+        ...(query ? ["'searchParams'"] : []),
+        ...(payload ? ["'json'"] : [])
+    ];
+
+    const optionsType = omitTypes.length > 0
+            ? `Omit<Options, ${omitTypes.join(' | ')}>`
+            : 'Options';
+
+    paramList.push('kyInstance?: KyInstance', `options?: ${optionsType}`);
     return paramList.join(', ');
 };
 %>
@@ -40,5 +50,6 @@ return instance.<%= route.request.method.toLowerCase() %><<%= responseType %>>(`
 <% if (payload) { %>
     json: data,
 <% } %>
+...options,
 }).json();
 }
