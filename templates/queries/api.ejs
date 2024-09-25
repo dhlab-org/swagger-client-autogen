@@ -40,10 +40,13 @@ const buildPathQueryKey = ({ path }) =>
 
 const removeBracket = (type) => type.replace(/[()]/g, '')
 
-const getRequestParams = ({ parameters = [], query, payload }) => ({
+const getRequestParams = ({ parameters = [], query, payload, routeName }) => {
+    const queryParamsDto = query ? `${pascalCase(routeName.usage)}QueryParams` : '';
+
+    return {
     withTypes: [
         ...parameters.map(({ name, type, optional }) => `${name}${optional ? '?' : ''}: ${removeBracket(type)}`),
-        query ? `params${query.optional ? '?' : ''}: ${removeBracket(query.type)}` : '',
+        queryParamsDto ? `params${query.optional ? '?' : ''}: ${queryParamsDto}` : '',
         payload ? `body${payload.optional ? '?' : ''}: ${removeBracket(payload.type)}` : '',
     ].filter(Boolean).join(', '),
     withoutTypes: [
@@ -51,7 +54,7 @@ const getRequestParams = ({ parameters = [], query, payload }) => ({
         query ? `params` : '',
         payload ? 'body' : '',
     ].filter(Boolean).join(', ')
-});
+} };
 
 
 const queryConfigs = routes
@@ -61,7 +64,10 @@ const queryConfigs = routes
             const { request, response } = route;
             const queryKeyName = buildQueryKey(request);
             const pathQueryKey = buildPathQueryKey(request);
-            const { withTypes: requestParams, withoutTypes: requestParamsWithoutTypes } = getRequestParams(request);
+            const { withTypes: requestParams, withoutTypes: requestParamsWithoutTypes } = getRequestParams({
+                ...request,
+                routeName: route.routeName
+            });
 
             return {
                 moduleName,
@@ -80,13 +86,11 @@ const queryConfigs = routes
                 ].filter(Boolean).join(', ')}]`,
             };
         });
-
-const allDto =modelTypes.map(v=>v.name);
 %>
 
 import { DefaultError, useQuery, useSuspenseQuery, UseQueryOptions, UseSuspenseQueryOptions } from '@tanstack/react-query';
 
-import { <%~ allDto %> } from '@/shared/api';
+<%~ includeFile('../dto-import.ejs', { ...it }) %>
 
 import { <%~ moduleName %>Api } from './instance';
 
