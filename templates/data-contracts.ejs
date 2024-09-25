@@ -1,6 +1,6 @@
 <%
-const { modelTypes, utils, config } = it;
-const { formatDescription, require, _, Ts } = utils;
+const { modelTypes, utils, config, routes } = it;
+const { formatDescription, require, _, Ts, pascalCase } = utils;
 
 const buildGenerics = (contract) => {
     if (!contract.genericArgs || !contract.genericArgs.length) return '';
@@ -36,4 +36,15 @@ type <%~ config.Ts.CodeGenKeyword.UtilRequiredKeys %><T, K extends keyof T> = Om
 <%~ contract.internal ? '' : 'export'%> <%~ (dataContractTemplates[contract.typeIdentifier] || dataContractTemplates.type)(contract) %>
 
 
+<% } %>
+
+<% for (const route of routes.combined) { %>
+    <% for (const api of route.routes) { %>
+        <% const name = `${pascalCase(api.routeName.usage)}QueryParams`; %>
+        <% const content = api.specificArgs.query?.type; %>
+        <% if (content) { %>
+            export type <%= name %> = <%= content %>;
+
+        <% } %>
+    <% } %>
 <% } %>
