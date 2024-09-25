@@ -16,10 +16,12 @@ const hasPathParams = pathParams.length > 0;
 const payload = route.request.payload;
 const query = route.request.query;
 
+const queryTypeName = query ? `${pascalCase(route.routeName.usage)}QueryParams` : null;
+
 const generateParams = (params, query, payload) => {
     const paramList = [
         ...(params ? params.map(param => `${param.name}${param.optional ? '?' : ''}: ${param.type}`) : []),
-        ...(query ? [`params${query.optional ? '?' : ''}: ${query.type}`] : []),
+        ...(query ? [`params${query.optional ? '?' : ''}: ${queryTypeName || query.type}`] : []),
         ...(payload ? [`data${payload.optional ? '?' : ''}: ${payload.type}`] : [])
     ];
 
@@ -38,8 +40,7 @@ const generateParams = (params, query, payload) => {
 %>
 
 /**
-<%~ routeDocs.lines %>
- */
+<%~ routeDocs.lines %> */
 <%= functionName %>(<%~ generateParams(pathParams, query, payload) %>) {
 const instance = kyInstance ?? this.instance;
 
