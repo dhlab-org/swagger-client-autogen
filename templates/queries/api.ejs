@@ -44,17 +44,17 @@ const getRequestParams = ({ parameters = [], query, payload, routeName }) => {
     const queryParamsDto = query ? `${pascalCase(routeName.usage)}QueryParams` : '';
 
     return {
-    withTypes: [
-        ...parameters.map(({ name, type, optional }) => `${name}${optional ? '?' : ''}: ${removeBracket(type)}`),
-        queryParamsDto ? `params${query.optional ? '?' : ''}: ${queryParamsDto}` : '',
-        payload ? `body${payload.optional ? '?' : ''}: ${removeBracket(payload.type)}` : '',
-    ].filter(Boolean).join(', '),
-    withoutTypes: [
-        ...parameters.map(({ name, optional }) => `${name}${optional ? '?' : ''}`),
-        query ? `params` : '',
-        payload ? 'body' : '',
-    ].filter(Boolean).join(', ')
-} };
+        withTypes: [
+            ...parameters.map(({ name, type, optional }) => `${name}${optional ? '?' : ''}: ${removeBracket(type)}`),
+            queryParamsDto ? `params${query.optional ? '?' : ''}: ${queryParamsDto}` : '',
+            payload ? `body${payload.optional ? '?' : ''}: ${removeBracket(payload.type)}` : '',
+        ].filter(Boolean).join(', '),
+        withoutTypes: [
+            ...parameters.map(({ name, optional }) => `${name}${optional ? '?' : ''}`),
+            query ? `params` : '',
+            payload ? 'body' : '',
+        ].filter(Boolean).join(', ')
+    } };
 
 
 const queryConfigs = routes
@@ -88,6 +88,7 @@ const queryConfigs = routes
         });
 %>
 
+<% if (queryConfigs?.length) { %>
 import { DefaultError, useQuery, useSuspenseQuery, UseQueryOptions, UseSuspenseQueryOptions } from '@tanstack/react-query';
 
 <%~ includeFile('../dto-import.ejs', { ...it }) %>
@@ -144,4 +145,5 @@ return useSuspenseQuery({
 })
 }
 
+<% } %>
 <% } %>

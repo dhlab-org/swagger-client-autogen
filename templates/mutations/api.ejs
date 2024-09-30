@@ -64,6 +64,8 @@ if (mutationConfigs.length > 0) {
 
 %>
 
+<% if (mutationConfigs?.length) { %>
+
 import {
 DefaultError,
 useMutation,
@@ -113,4 +115,5 @@ return useMutation({
 <%
 } else { %>
     <% /* mutationConfigs가 비어있을 때는 아무것도 출력되지 않습니다 */ %>
+<% } %>
 <% } %>
