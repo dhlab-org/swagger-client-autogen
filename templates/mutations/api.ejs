@@ -34,11 +34,31 @@ const getRequestParams = ({ parameters = [], query, payload, routeName }) => {
         ].filter(Boolean).join(', ')
     } };
 
+const buildMutationKeyName = ({ path }) =>
+        path
+                .split('/')
+                .filter(segment => segment )
+                .map(segment =>
+                        segment.match(/\${/)
+                                ? segment.replace(/[${}]/g, '').toUpperCase()
+                                : segment.toUpperCase()
+                )
+                .join('_');
+
+const buildPathMutationKey = ({ path }) =>
+        path
+                .split('/')
+                .filter(segment => segment)
+                .map(segment =>
+                        `'${segment.replace(/[${}]/g, '')}'`)
+
 const mutationConfigs = routes
         .filter(({ request: { method } }) => method === 'post' || method === 'patch' || method === 'put' || method === 'delete')
         .map(route => {
             const functionName = getFunctionName(route);
             const { request, response } = route;
+            const mutationKeyName = buildMutationKeyName(request);
+            const mutationKey = buildPathMutationKey(request);
             const { withTypes: requestParams, withoutTypes: requestParamsWithoutTypes } = getRequestParams({
                 ...request,
                 routeName: route.routeName
@@ -53,6 +73,8 @@ const mutationConfigs = routes
                 hasVariables: requestParams.length > 0,
                 requestParams,
                 requestParamsWithoutTypes,
+                mutationKeyName,
+                mutationKey: `[${mutationKey.filter(Boolean).join(', ')}]`,
             };
         });
 
@@ -77,6 +99,12 @@ import { <%~ modelTypes.map(v=>v.name) %> } from '@/shared/api';
 
 import { <%= moduleName %>Api } from './instance';
 
+export const <% ~moduleName.toUpperCase() %>_MUTATION_KEY = {
+<% for (const config of mutationConfigs) { %>
+    <% ~config.mutationKeyName %>: <% ~config.mutationKey %>,
+<% } %>
+};
+
 const mutations = {
 <% for (const config of mutationConfigs) { %>
     <%= config.functionName %>: () => ({
@@ -84,7 +112,7 @@ const mutations = {
     const { <%= config.requestParamsWithoutTypes %> } = variables;
     return <%= moduleName %>Api.<%= config.functionName %>(<%= config.requestParamsWithoutTypes %>);
     }<% } else { %>() => <%= moduleName %>Api.<%= config.functionName %>()<% } %>,
-    mutationKey: [ '<%~ config.route.raw.route.split('/')[1] %>' ]
+    mutationKey: <% ~moduleName.toUpperCase() %>_MUTATION_KEY.<% ~config.mutationKeyName %>,
     }),
 <% } %>
 };
