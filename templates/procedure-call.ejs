@@ -1,5 +1,5 @@
 <%
-const { utils, route, config } = it;
+const { utils, route, config, apiClassName } = it;
 const { _, pascalCase } = utils;
 const routeDocs = includeFile("./route-docs", { config, route, utils });
 
@@ -43,10 +43,13 @@ const generateParams = (params, query, payload) => {
 <%~ routeDocs.lines %> */
 <%= functionName %>(<%~ generateParams(pathParams, query, payload) %>) {
 const instance = kyInstance ?? this.instance;
+<% if (query) { %>
+    const urlSearchParams = <%= apiClassName %>Api.createSearchParams(params);
+<% } %>
 
 return instance.<%= route.request.method.toLowerCase() %><<%= responseType %>>(`<%= route.request.path.replace(/{/g, '{').replace(/}/g, '}').slice(1,) %>`,{
 <% if (query) { %>
-    searchParams: params,
+    searchParams: urlSearchParams,
 <% } %>
 <% if (payload) { %>
     json: data,

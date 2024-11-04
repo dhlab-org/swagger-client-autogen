@@ -17,7 +17,24 @@ constructor(instance: KyInstance) {
 this.instance = instance;
 }
 
+static createSearchParams(
+  params?: Record<string, string | number | boolean | Array<string | number | boolean>>
+): URLSearchParams {
+  const urlSearchParams = new URLSearchParams();
+
+  if (params) {
+    Object.entries(params)
+      .filter(([, value]) => value !== undefined)
+      .forEach(([key, value]) => {
+        const values = Array.isArray(value) ? value : [value];
+        values.forEach((v) => urlSearchParams.append(key, v.toString()));
+      });
+  }
+
+  return urlSearchParams;
+}
+
 <% for (const route of routes) { %>
-<%~ includeFile('./procedure-call.ejs', { ...it, route }) %>
+<%~ includeFile('./procedure-call.ejs', { ...it, route, apiClassName }) %>
 <% } %>
 }
