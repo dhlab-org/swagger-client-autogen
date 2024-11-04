@@ -95,7 +95,15 @@ UseMutationOptions,
 useQueryClient,
 } from '@tanstack/react-query';
 
-import { <%~ modelTypes.map(v=>v.name) %> } from '@/shared/api';
+import { 
+  <%~ modelTypes.map(v=>v.name) %>,
+  <%~ routes
+    .filter(route => route.query || (mutationConfigs || []).some(config => config.requestParams.includes('params')))
+    .map(route => `${pascalCase(route.routeName.usage)}QueryParams`)
+    .filter((value, index, self) => self.indexOf(value) === index) // 중복 제거
+    .join(',\n  ') 
+%>
+} from '@/shared/api';
 
 import { <%= moduleName %>Api } from './instance';
 
