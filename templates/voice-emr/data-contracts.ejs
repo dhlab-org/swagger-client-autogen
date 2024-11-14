@@ -14,6 +14,29 @@ const buildGenerics = (contract) => {
     }).join(',') + '>'
 }
 
+const transformContent = (content) => {
+    let transformed = content;
+    transformed = transformed.replace(/([a-z])_([a-z])/g, (match, p1, p2) => p1 + p2.toUpperCase());
+    
+    // 먼저 모든 _id를 userId로 변환
+    transformed = transformed.replace(/_id/g, 'userId');
+    
+    // 중복된 userId 필드 제거 (선택적 userId 유지, 필수 userId 제거)
+    const lines = transformed.split('\n');
+    const seenUserId = new Set();
+    transformed = lines.filter(line => {
+        if (line.includes('userId')) {
+            if (seenUserId.has('userId')) {
+                return false;
+            }
+            seenUserId.add('userId');
+        }
+        return true;
+    }).join('\n');
+    
+    return transformed;
+};
+
 const dataContractTemplates = {
     enum: (contract) => {
         const name = pascalCase(contract.name.replace('ApiV1', ''));
@@ -21,11 +44,19 @@ const dataContractTemplates = {
     },
     interface: (contract) => {
         const name = pascalCase(contract.name.replace('ApiV1', ''));
-        return `type ${name}${buildGenerics(contract)} = {\r\n${contract.content}}`;
+        let camelContent = transformContent(contract.content);
+        // camelContent = camelContent.replace(/([a-z])_([a-z])/g, (match, p1, p2) => p1 + p2.toUpperCase());
+        // camelContent = camelContent.replace(/_id/g, 'userId');
+        return `type ${name}${buildGenerics(contract)} = {\r\n${camelContent}}`;
     },
     type: (contract) => {
         const name = pascalCase(contract.name.replace('ApiV1', ''));
-        return `type ${name}${buildGenerics(contract)} = ${contract.content}`;
+        // let camelContent = contract.content;
+        let camelContent = transformContent(contract.content);
+
+        // camelContent = camelContent.replace(/([a-z])_([a-z])/g, (match, p1, p2) => p1 + p2.toUpperCase());
+        // camelContent = camelContent.replace(/_id/g, 'userId');
+        return `type ${name}${buildGenerics(contract)} = ${camelContent}`;
     },
 }
 %>
@@ -44,8 +75,10 @@ type <%~ config.Ts.CodeGenKeyword.UtilRequiredKeys %><T, K extends keyof T> = Om
 <% for (const route of routes.combined) { %>
     <% for (const api of route.routes) { %>
         <% const name = `${pascalCase(api.routeName.usage.replace('ApiV1', ''))}QueryParams`; %>
-        <% const content = api.specificArgs.query?.type; %>
+        <% let content = api.specificArgs.query?.type; %>
         <% if (content) { %>
+            <% content = content.replace(/user_id/g, 'userId'); %>
+            <% content = content.replace(/(?<!user)_([a-z])/g, (match, letter) => letter.toUpperCase()); %>
             export type <%= name %> = <%= content %>;
 
         <% } %>
