@@ -14,7 +14,8 @@
   "bin": {
     "fetch-swagger": "./scripts/fetch-swagger.js",
     "generate-all": "./scripts/generate-all.js",
-    "generate-msw": "./scripts/generate-msw.js"
+    "generate-msw": "./scripts/generate-msw.js",
+    "generate-voice-emr": "./scripts/generate-voice-emr.js"
   },
   "devDependencies": {
     "js-yaml": "^4.1.0",

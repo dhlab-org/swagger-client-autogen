@@ -1,0 +1,21 @@
+<%
+const { utils, route, modelTypes } = it;
+const { _, pascalCase } = utils;
+const apiName = pascalCase(route.moduleName);
+const routes = route.routes;
+const dataContracts = _.map(modelTypes, "name").map(name => name.replace('ApiV1', ''));
+const queryParamsDto = routes.filter(v=>v.specificArgs.query).map(v=>`${pascalCase(v.routeName.original.replace('ApiV1', ''))}QueryParams`)
+
+const allImports = ["axiosInstance", "unAuthorizedAxiosInstance", ...queryParamsDto, ...dataContracts]
+%>
+
+import { <%~ allImports.join(", ") %> } from '@/shared/api';
+
+const <%= apiName %>Api = {
+
+<% for (const route of routes) { %>
+<%~ includeFile('./procedure-call.ejs', { ...it, route, apiName }) %>
+<% } %>
+}
+
+export { <%= apiName %>Api };
