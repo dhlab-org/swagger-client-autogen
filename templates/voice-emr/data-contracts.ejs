@@ -44,18 +44,12 @@ const dataContractTemplates = {
     },
     interface: (contract) => {
         const name = pascalCase(contract.name.replace('ApiV1', ''));
-        let camelContent = transformContent(contract.content);
-        // camelContent = camelContent.replace(/([a-z])_([a-z])/g, (match, p1, p2) => p1 + p2.toUpperCase());
-        // camelContent = camelContent.replace(/_id/g, 'userId');
+        const camelContent = transformContent(contract.content);
         return `type ${name}${buildGenerics(contract)} = {\r\n${camelContent}}`;
     },
     type: (contract) => {
         const name = pascalCase(contract.name.replace('ApiV1', ''));
-        // let camelContent = contract.content;
-        let camelContent = transformContent(contract.content);
-
-        // camelContent = camelContent.replace(/([a-z])_([a-z])/g, (match, p1, p2) => p1 + p2.toUpperCase());
-        // camelContent = camelContent.replace(/_id/g, 'userId');
+        const camelContent = transformContent(contract.content);
         return `type ${name}${buildGenerics(contract)} = ${camelContent}`;
     },
 }
