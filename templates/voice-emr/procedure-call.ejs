@@ -33,12 +33,16 @@ const generateParams = (params, query, payload) => {
 
     return paramList.join(', ');
 };
+const path = route.request.path.replace(/{/g, '{').replace(/}/g, '}').slice(1,).replace(/^api\/v1\//, '')
+const unAuthorizedPathList = ['auth/primary', 'auth/secondary', 'users/email', "users/${userId}/password"]
+const isSignUp = route.request.method.toLowerCase() === 'post' && path === 'users'
+const isUnAuthorized = unAuthorizedPathList.some(p => path.includes(p)) || isSignUp
 %>
 
 /**
 <%~ routeDocs.lines %> */
 <%= functionName %>: async (<%~ generateParams(pathParams, query, payload) %>) => {
-const response = await axiosInstance.<%= route.request.method.toLowerCase() %><<%= responseType %>>(`<%= route.request.path.replace(/{/g, '{').replace(/}/g, '}').slice(1,).replace(/^api\/v1\//, '') %>`,
+const response = await <%= isUnAuthorized ? 'unAuthorizedAxiosInstance' : 'axiosInstance' %>.<%= route.request.method.toLowerCase() %><<%= responseType %>>(`<%= path %>`,
 <% if (payload) { %>
     <%= route.request.method === 'delete' ? '{ data: payload }' : 'payload' %>,
 <% } %>
