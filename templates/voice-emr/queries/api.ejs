@@ -32,7 +32,7 @@ const buildQueryKey = ({ path }) =>
 const buildPathQueryKey = ({ path }) =>
         path
                 .split('/')
-                .filter(segment => segment && segment !== 'v1')
+                .filter(segment => segment && segment !== 'api' && segment !== 'v1')
                 .map(segment =>
                         segment.match(/\${/)
                                 ? segment.replace(/[${}]/g, '')
