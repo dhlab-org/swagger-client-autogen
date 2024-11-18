@@ -27,7 +27,8 @@ const buildQueryKey = ({ path }) =>
                                 ? segment.replace(/[${}]/g, '').toUpperCase()
                                 : segment.toUpperCase()
                 )
-                .join('_');
+                .join('_')
+                .replace(/-/g, '_');
 
 const buildPathQueryKey = ({ path }) =>
         path
