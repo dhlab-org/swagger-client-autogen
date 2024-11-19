@@ -14,6 +14,15 @@ const buildGenerics = (contract) => {
     }).join(',') + '>'
 }
 
+const typeMapping = {
+    'uploadType': '"STREAM" | "FILE"',
+    'emrStatus': '"NOT_STARTED" | "IN_PROGRESS" | "FAILED" | "COMPLETED"',
+    'recordingStatus': '"NOT_STARTED" | "IN_PROGRESS" | "COMPLETED" | "WAIT_FOR_RECONNECT"',
+    'gptEmr': 'Record<string, string[]>',
+    'transcription': '{ start: number; end: number; attendees?: string; text: string }[]',
+    'rating': '"like" | "dislike"'
+};
+
 const transformContent = (content) => {
     let transformed = content;
     transformed = transformed.replace(/([a-z])_([a-z])/g, (match, p1, p2) => p1 + p2.toUpperCase());
@@ -21,9 +30,14 @@ const transformContent = (content) => {
     // 먼저 모든 _id를 userId로 변환
     transformed = transformed.replace(/_id/g, 'userId');
     
+    // | File 제거
+    transformed = transformed.replace(/\s*\|\s*File/g, '');
+    
     // 중복된 userId 필드 제거 (선택적 userId 유지, 필수 userId 제거)
     const lines = transformed.split('\n');
     const seenUserId = new Set();
+    
+    // 각 라인에 대해 타입 매핑 적용
     transformed = lines.filter(line => {
         if (line.includes('userId')) {
             if (seenUserId.has('userId')) {
@@ -32,6 +46,19 @@ const transformContent = (content) => {
             seenUserId.add('userId');
         }
         return true;
+    }).map(line => {
+        // Record 타입을 포함한 매핑된 타입에 대해 검사하고 변환
+        for (const [key, type] of Object.entries(typeMapping)) {
+            if (line.includes(key)) {
+                if (key === 'transcription') {
+                    console.log(line);
+                }
+                // Record 타입이나 유니온 타입을 포함한 모든 타입에 대해 변환
+                const [_key] = line.split(':');
+                return `${_key}: ${type}`;
+            }
+        }
+        return line;
     }).join('\n');
     
     return transformed;
