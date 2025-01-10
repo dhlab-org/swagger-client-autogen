@@ -45,7 +45,7 @@ const buildMutationKeyName = ({ path, method }) =>
                                : segment.toUpperCase()
                )
                 .join('_')
-
+                .replace(/-/g, '_');
 const buildPathMutationKey = ({ path }) =>
         path
                 .split('/')
