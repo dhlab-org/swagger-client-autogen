@@ -17,7 +17,7 @@ class MonoSchemaParser {
   /** @type {SchemaFormatters} */
   schemaFormatters;
 
-  constructor(schemaParser, schema, typeName = null, schemaPath = []) {
+  constructor(schemaParser, schema, typeName, schemaPath = []) {
     this.schemaParser = schemaParser;
     this.schemaParserFabric = schemaParser.schemaParserFabric;
     this.schema = schema;
@@ -35,13 +35,19 @@ class MonoSchemaParser {
 class AnyOfSchemaParser extends MonoSchemaParser {
   parse() {
     const ignoreTypes = [this.config.Ts.Keyword.Any];
-    !this.schema.required && ignoreTypes.push('null');
+
+    if (this.schema.required === 'boolean') {
+      !this.schema.required && ignoreTypes.push('null');
+    }else{
+      const isRequired = this.schemaComponentsMap._data.find(v=>v.typeName === this.schemaPath.at(0))?.rawTypeData?.required?.includes(this.schemaPath.at(1));
+      !isRequired && ignoreTypes.push('null');
+    }
 
     const combined = this.schema.anyOf.map((childSchema) =>
-      this.schemaParserFabric.getInlineParseContent(
-        this.schemaUtils.makeAddRequiredToChildSchema(this.schema, childSchema),
-        this.schemaPath
-      )
+          this.schemaParserFabric.getInlineParseContent(
+              this.schemaUtils.makeAddRequiredToChildSchema(this.schema, childSchema),
+              this.schemaPath
+          )
     );
 
     const filtered = this.schemaUtils.filterSchemaContents(
