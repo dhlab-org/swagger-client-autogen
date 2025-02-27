@@ -16,12 +16,16 @@ const isUrl = (string) => {
   }
 };
 
-export const generateCode = async (type, uri, username, password) => {
+export const generateCode = async (type, uri, username, password, projectTemplatePath) => {
   const templatePath = {
-    api: path.resolve(__dirname, '../templates'),
-    apiInstance: path.resolve(__dirname, '../templates/api-instance'),
-    query: path.resolve(__dirname, `../templates/queries`),
-    mutation: path.resolve(__dirname, `../templates/mutations`),
+    api: projectTemplatePath ? path.resolve(projectTemplatePath) : path.resolve(__dirname, '../templates'),
+    apiInstance: projectTemplatePath
+      ? path.resolve(projectTemplatePath, 'api-instance')
+      : path.resolve(__dirname, '../templates/api-instance'),
+    query: projectTemplatePath ? path.resolve(projectTemplatePath, 'queries') : path.resolve(__dirname, `../templates/queries`),
+    mutation: projectTemplatePath
+      ? path.resolve(projectTemplatePath, 'mutations')
+      : path.resolve(__dirname, `../templates/mutations`),
   };
   const isLocal = !isUrl(uri);
 

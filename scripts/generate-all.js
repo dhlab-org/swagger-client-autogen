@@ -15,6 +15,7 @@ const argv = minimist(process.argv.slice(2), {
     'api-instance-output-path',
     'query-output-path',
     'mutation-output-path',
+    'project-template'
   ],
   alias: {
     u: 'uri',
@@ -25,6 +26,7 @@ const argv = minimist(process.argv.slice(2), {
     aip: 'api-instance-output-path',
     qp: 'query-output-path',
     mp: 'mutation-output-path',
+    pt: 'project-template',
   },
 });
 
@@ -37,6 +39,7 @@ const {
   'api-instance-output-path': apiInstanceOutputPath,
   'query-output-path': queryOutputPath,
   'mutation-output-path': mutationOutputPath,
+  'project-template': projectTemplate,
 } = argv;
 
 const outputPath = {
@@ -56,23 +59,25 @@ if (!uri) {
       '[--dto-output-path <dto-output-path>] ' +
       '[--api-output-path <api-output-path>] ' +
       '[--query-output-path <query-output-path>] ' +
-      '[--mutation-output-path <mutation-output-path>]'
+      '[--mutation-output-path <mutation-output-path>] ' +
+      '[--project-template <project-template>]'
   );
   console.error(
     `Current output paths:\n` +
       `DTO Path: ${outputPath.dto}\n` +
       `API Path: ${outputPath.api}\n` +
       `Query Path: ${outputPath.query}\n` +
-      `Mutation Path: ${outputPath.mutation}`
+      `Mutation Path: ${outputPath.mutation}\n` +
+      `Project Template Path: ${outputPath.projectTemplate}`
   );
   process.exit(1);
 }
 
 try {
-  const apiAndDtoCode = await generateCode('api', uri, username, password);
-  const apiInstanceCode = await generateCode('apiInstance', uri, username, password);
-  const queriesCode = await generateCode('query', uri, username, password);
-  const mutationsCode = await generateCode('mutation', uri, username, password);
+  const apiAndDtoCode = await generateCode('api', uri, username, password, projectTemplate);
+  const apiInstanceCode = await generateCode('apiInstance', uri, username, password, projectTemplate);
+  const queriesCode = await generateCode('query', uri, username, password, projectTemplate);
+  const mutationsCode = await generateCode('mutation', uri, username, password, projectTemplate);
 
   await saveDto(outputPath.dto, apiAndDtoCode.files);
   await saveEntitiesFile(outputPath.api, apiAndDtoCode.files);
