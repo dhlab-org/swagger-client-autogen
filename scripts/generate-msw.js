@@ -10,27 +10,28 @@ import { writeFileToPath } from '../utils/file.js';
 const execAsync = promisify(exec);
 
 const argv = minimist(process.argv.slice(2), {
-  string: ['swagger-path', 'api-base-url'],
+  string: ['swagger-path', 'api-base-url', 'package-manager'],
   alias: {
     s: 'swagger-path',
     a: 'api-base-url',
+    pm: 'package-manager'
   },
 });
 
-const { 'swagger-path': swaggerPath } = argv;
+const { 'swagger-path': swaggerPath, 'package-manager': packageManager = 'pnpm' } = argv;
 
 const baseUrlArg = argv['api-base-url'] || 'https://api.example.com/v1';
 
 if (!swaggerPath) {
   console.error('❗️ Error: Please provide the swagger URL');
   console.error(
-      'Usage: node generate-api.js --swagger-path <swagger-path> [--api-base-url <api-base-url>]'
+    'Usage: node generate-msw.js --swagger-path <swagger-path> [--api-base-url <api-base-url>] [--package-manager <package-manager>]'
   );
   process.exit(1);
 }
 
 const outPath = path.resolve(process.cwd(), `msw`);
-const command = `pnpm msw-auto-mock ${swaggerPath} -o ${outPath} --base-url ${baseUrlArg}`;
+const command = `${packageManager} msw-auto-mock ${swaggerPath} -o ${outPath} --base-url ${baseUrlArg}`;
 
 const convertToTs = async (filePath) => {
   try {
