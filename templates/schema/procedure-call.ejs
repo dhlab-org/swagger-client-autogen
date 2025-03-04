@@ -39,11 +39,10 @@ const generateParams = (params, query, payload) => {
 };
 
 const cleanDtoName = (name) => {
-    return name
-      .replace(/[()\[\]{}]/g, '') // 괄호, 대괄호, 중괄호 제거
-      .replace(/[^a-zA-Z0-9]/g, '') // 특수문자 제거
-      .replace(/^./, str => str.toLowerCase()); // 첫 글자를 소문자로
-  };
+    const match = name.match(/\(([^)]+)\)/);
+    const result = match ? match[1] : name;
+    return result.charAt(0).toLowerCase() + result.slice(1);
+};
 
 const isValidType = (type) => {
   const invalidTypes = ['void', 'any', 'null', 'undefined', 'object'];
