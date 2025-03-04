@@ -7,7 +7,7 @@ import minimist from 'minimist';
 import { fileURLToPath } from 'url';
 import { generateApi } from 'swagger-typescript-api';
 import { fetchSwagger } from '../utils/fetch-swagger.js';
-import { saveDto, saveEntitiesFile, saveZodApiFile, writeFileToPath } from '../utils/file.js';
+import {  writeFileToPath } from '../utils/file.js';
 import { AnyOfSchemaParser } from '../utils/parser.js';
 import { isUrl } from '../utils/url.js';
 const execAsync = promisify(exec);
@@ -83,8 +83,8 @@ const setupOutputPaths = (args) => {
       absolutePath: path.resolve(process.cwd(), args.mutationOutputPath ?? 'src/entities/{moduleName}/api/mutations.ts'),
     },
     schema: {
-      relativePath: args.schemaOutputPath ?? 'src/shared/api/schema.ts',
-      absolutePath: path.resolve(process.cwd(), args.schemaOutputPath ?? 'src/shared/api/schema.ts'),
+      relativePath: args.schemaOutputPath ?? 'src/shared/api/schema.gen.ts',
+      absolutePath: path.resolve(process.cwd(), args.schemaOutputPath ?? 'src/shared/api/schema.gen.ts'),
     },
   };
 };
@@ -150,11 +150,22 @@ const generateApiFunctionCode = async (args, outputPaths) => {
   const templatePath = projectTemplatePath ? path.resolve(projectTemplatePath) : createSchema ? path.resolve(__dirname, '../templates/schema') : path.resolve(__dirname, '../templates');
 
   const apiFunctionCode = await generateApiCode({
-    uri, username, password, templates: templatePath,
+    uri, 
+    username, 
+    password, 
+    templates: templatePath,
+    extraTemplates: createSchema ? [
+       {name: 'api-utils', path: path.resolve(__dirname, '../templates/schema/api-utils.ejs')}
+    ] : undefined,
   });
 
   for (const { fileName, fileContent } of apiFunctionCode.files) {
     if (fileName === 'http-client') continue;
+
+    if(fileName === 'api-utils'){
+      const { stderr } = await execAsync(`ts-to-zod ${outputPaths.dto.relativePath} ${outputPaths.schema.relativePath}`);
+      writeFileToPath(path.resolve(process.cwd(), 'src/shared/api/utils.gen.ts'), fileContent);
+    }
 
     if(fileName === 'data-contracts'){
       writeFileToPath(outputPaths.dto.absolutePath, fileContent);
@@ -169,7 +180,7 @@ const generateApiFunctionCode = async (args, outputPaths) => {
 }
 
 const generateTanstackQueryCode = async (args, outputPaths) => {
-  const {projectTemplatePath,createSchema, uri, username, password} = args;
+  const {projectTemplatePath, createSchema, uri, username, password} = args;
   const templatePath = projectTemplatePath ? path.resolve(projectTemplatePath, 'tanstack-query') : path.resolve(__dirname, '../templates/tanstack-query');
 
   const tanstackQueryCode = await generateApiCode({

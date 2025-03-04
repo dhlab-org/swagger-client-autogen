@@ -9,17 +9,22 @@ const cleanDtoName = (name) => {
     .replace(/^./, str => str.toLowerCase()); // 첫 글자를 소문자로
 };
 
+const isValidType = (type) => {
+  const invalidTypes = ['void', 'any', 'null', 'undefined'];
+  return type && !invalidTypes.includes(type.toLowerCase());
+};
+
 const schema = {
   request: routes
     .map(route => route.request.payload?.type)
-    .filter(Boolean)
+    .filter(isValidType)
     .map(cleanDtoName)
     .filter(Boolean)
     .map(v => `${v}Schema`),
   response: routes
     .map(route => route.response.type)
-    .filter(Boolean)
-    .map(type => type.match(/([A-Za-z]+ResponseDto)/)?.[1])
+    .filter(isValidType)
+    .map(type => type.match(/([A-Za-z]+Dto)/)?.[1])
     .filter(Boolean)
     .map(cleanDtoName)
     .map(v => `${v}Schema`)
@@ -28,4 +33,4 @@ const schema = {
 const allSchemas = [...schema.request, ...schema.response]
 %>
 
-<%~ allSchemas.length > 0 ? `import { ${allSchemas.join(', ')} } from '@/shared/api'` : '' %>
+<%~ allSchemas.length > 0 ? `import { ${allSchemas.join(', ')} } from '@/shared/api/schema.gen'` : '' %>

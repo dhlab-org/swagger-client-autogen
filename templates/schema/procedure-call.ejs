@@ -45,9 +45,14 @@ const cleanDtoName = (name) => {
       .replace(/^./, str => str.toLowerCase()); // 첫 글자를 소문자로
   };
 
+const isValidType = (type) => {
+  const invalidTypes = ['void', 'any', 'null', 'undefined'];
+  return type && !invalidTypes.includes(type.toLowerCase());
+};
+
 const schema = {
-    request: payload ? `${cleanDtoName(payload.type)}Schema` : null,
-    response: route.response?.type ? `${cleanDtoName(route.response?.type)}Schema` : null
+    request: payload && isValidType(payload.type) ? `${cleanDtoName(payload.type)}Schema` : null,
+    response: route.response?.type && isValidType(route.response.type) ? `${cleanDtoName(route.response.type)}Schema` : null
 }
 
 %>

@@ -1,0 +1,9 @@
+import type { ZodSchema } from 'zod';
+
+export const validateSchema = (schema: ZodSchema, data: unknown) => {
+  if (!schema.safeParse(data).success) {
+    throw new Error(
+      `Invalid data according to zod schema: ${JSON.stringify(data)}`,
+    );
+  }
+};
