@@ -138,6 +138,7 @@ export const generateApiCode = async ({uri, username, password, templates, ...pa
     moduleNameFirstTag: true,
     moduleNameIndex: 1,
     typeSuffix: 'Dto',
+    generateRouteTypes: true,
     schemaParsers: {
       complexAnyOf: AnyOfSchemaParser,
     },
@@ -146,9 +147,9 @@ export const generateApiCode = async ({uri, username, password, templates, ...pa
 }
 
 const generateApiFunctionCode = async (args, outputPaths) => {
-  const {projectTemplatePath,createSchema, uri, username, password} = args;
-  const templatePath = projectTemplatePath ? path.resolve(projectTemplatePath) : createSchema ? path.resolve(__dirname, '../templates/schema') : path.resolve(__dirname, '../templates');
-
+  const {projectTemplate,createSchema, uri, username, password} = args;
+  const templatePath = projectTemplate ? path.resolve(process.cwd(), projectTemplate) : createSchema ? path.resolve(__dirname, '../templates/schema') : path.resolve(__dirname, '../templates');
+  
   const apiFunctionCode = await generateApiCode({
     uri, 
     username, 
@@ -169,37 +170,39 @@ const generateApiFunctionCode = async (args, outputPaths) => {
 
     if(fileName === 'data-contracts'){
       await writeFileToPath(outputPaths.dto.absolutePath, fileContent);
-    }else if(fileName === 'route-types'){
-      await writeFileToPath(outputPaths.apiInstance.absolutePath, fileContent);
     }else {
-      const moduleName = fileName.toLowerCase();
-      const output = outputPaths.api.absolutePath.replace('{moduleName}', moduleName);
-      await writeFileToPath(output, fileContent);
+      const moduleName = fileName.replace('Route', '').toLowerCase();
+
+      if(fileName.match(/Route$/)){
+        const output = outputPaths.apiInstance.absolutePath.replace('{moduleName}', moduleName);
+        await writeFileToPath(output, fileContent);
+      }else{
+        const output = outputPaths.api.absolutePath.replace('{moduleName}', moduleName);
+        await writeFileToPath(output, fileContent);
+      }
     }
   }
 }
 
 const generateTanstackQueryCode = async (args, outputPaths) => {
-  const {projectTemplatePath, createSchema, uri, username, password} = args;
-  const templatePath = projectTemplatePath ? path.resolve(projectTemplatePath, 'tanstack-query') : path.resolve(__dirname, '../templates/tanstack-query');
-
+  const {projectTemplate, uri, username, password} = args;
+  const templatePath = projectTemplate ? path.resolve(process.cwd(), projectTemplate, 'tanstack-query') : path.resolve(__dirname, '../templates/tanstack-query');
+  
   const tanstackQueryCode = await generateApiCode({
     uri, username, password, templates: templatePath,
   })
 
   for (const { fileName, fileContent } of tanstackQueryCode.files) {
     if (fileName === 'http-client' || fileName === 'data-contracts') continue;
+    console.log(fileName)
+    const moduleName = fileName.replace('Route', '').toLowerCase();
 
-    // mutaion
-    if(fileName === 'route-types'){
-      const moduleName = fileName.toLowerCase();
-      const output = outputPaths.mutaion.absolutePath.replace('{moduleName}', moduleName);
-      await writeFileToPath(output, fileContent); 
+    if(fileName.match(/Route$/)){
+      const output = outputPaths.mutation.absolutePath.replace('{moduleName}', moduleName);
+      await writeFileToPath(output, fileContent);
     }else{
-      // query
-      const moduleName = fileName.toLowerCase();
       const output = outputPaths.query.absolutePath.replace('{moduleName}', moduleName);
-      await writeFileToPath(output, fileContent); 
+      await writeFileToPath(output, fileContent);
     }
   }
 }
