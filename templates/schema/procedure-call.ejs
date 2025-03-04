@@ -1,0 +1,79 @@
+<%
+const { utils, route, config, apiClassName } = it;
+const { _, pascalCase } = utils;
+const routeDocs = includeFile("../route-docs", { config, route, utils });
+
+const functionName = route.request.method + pascalCase(`${route.request.path
+        .split('/')
+        .map((segment) =>
+                segment.includes('${') ? `By_${segment.replace(/[${}]/g, '')}` : segment
+        )
+        .join('_')}`);
+
+const responseType = route.responseBodyInfo?.success?.type || 'any';
+const pathParams = _.values(route.request.parameters);
+const hasPathParams = pathParams.length > 0;
+const payload = route.request.payload;
+const query = route.request.query;
+
+const queryTypeName = query ? `${pascalCase(route.routeName.usage)}QueryParams` : null;
+
+const generateParams = (params, query, payload) => {
+    const paramList = [
+        ...(params ? params.map(param => `${param.name}${param.optional ? '?' : ''}: ${param.type}`) : []),
+        ...(query ? [`params${query.optional ? '?' : ''}: ${queryTypeName || query.type}`] : []),
+        ...(payload ? [`data${payload.optional ? '?' : ''}: ${payload.type}`] : [])
+    ];
+
+    const omitTypes = [
+        ...(query ? ["'searchParams'"] : []),
+        ...(payload ? ["'json'"] : [])
+    ];
+
+    const optionsType = omitTypes.length > 0
+            ? `Omit<Options, ${omitTypes.join(' | ')}>`
+            : 'Options';
+
+    paramList.push('kyInstance?: KyInstance', `options?: ${optionsType}`);
+    return paramList.join(', ');
+};
+
+const cleanDtoName = (name) => {
+    return name
+      .replace(/[()\[\]{}]/g, '') // 괄호, 대괄호, 중괄호 제거
+      .replace(/[^a-zA-Z0-9]/g, '') // 특수문자 제거
+      .replace(/^./, str => str.toLowerCase()); // 첫 글자를 소문자로
+  };
+
+const schema = {
+    request: payload ? `${cleanDtoName(payload.type)}Schema` : null,
+    response: route.response?.type ? `${cleanDtoName(route.response?.type)}Schema` : null
+}
+
+%>
+
+/**
+<%~ routeDocs.lines %> */
+async <%= functionName %>(<%~ generateParams(pathParams, query, payload) %>) {
+
+<%= schema.request ? `validateSchema(${schema.request}, data);` : '' %>
+
+const instance = kyInstance ?? this.instance;
+<% if (query) { %>
+    const urlSearchParams = <%= apiClassName %>Api.createSearchParams(params);
+<% } %>
+
+const response = await instance.<%= route.request.method.toLowerCase() %><<%= responseType %>>(`<%= route.request.path.replace(/{/g, '{').replace(/}/g, '}').slice(1,) %>`,{
+<% if (query) { %>
+    searchParams: urlSearchParams,
+<% } %>
+<% if (payload) { %>
+    json: data,
+<% } %>
+...options,
+}).json();
+
+<%= schema.response ? `validateSchema(${schema.response}, response);` : '' %>
+
+return response;
+}

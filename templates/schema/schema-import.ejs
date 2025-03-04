@@ -1,0 +1,31 @@
+<%
+const { utils, route, config, modelTypes } = it;
+const routes = route.routes;
+
+const cleanDtoName = (name) => {
+  return name
+    .replace(/[()\[\]{}]/g, '') // 괄호, 대괄호, 중괄호 제거
+    .replace(/[^a-zA-Z0-9]/g, '') // 특수문자 제거
+    .replace(/^./, str => str.toLowerCase()); // 첫 글자를 소문자로
+};
+
+const schema = {
+  request: routes
+    .map(route => route.request.payload?.type)
+    .filter(Boolean)
+    .map(cleanDtoName)
+    .filter(Boolean)
+    .map(v => `${v}Schema`),
+  response: routes
+    .map(route => route.response.type)
+    .filter(Boolean)
+    .map(type => type.match(/([A-Za-z]+ResponseDto)/)?.[1])
+    .filter(Boolean)
+    .map(cleanDtoName)
+    .map(v => `${v}Schema`)
+};
+
+const allSchemas = [...schema.request, ...schema.response]
+%>
+
+<%~ allSchemas.length > 0 ? `import { ${allSchemas.join(', ')} } from '@/shared/api'` : '' %>
