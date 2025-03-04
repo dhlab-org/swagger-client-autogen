@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import fs from 'node:fs';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import path from 'node:path';
@@ -86,6 +87,10 @@ const setupOutputPaths = (args) => {
       relativePath: args.schemaOutputPath ?? 'src/shared/api/schema.gen.ts',
       absolutePath: path.resolve(process.cwd(), args.schemaOutputPath ?? 'src/shared/api/schema.gen.ts'),
     },
+    dtoGen: {
+      relativePath: 'src/shared/api/dto.gen.ts',
+      absolutePath: path.resolve(process.cwd(), 'src/shared/api/dto.gen.ts'),
+    },
   };
 };
 
@@ -155,18 +160,10 @@ const generateApiFunctionCode = async (args, outputPaths) => {
     username, 
     password, 
     templates: templatePath,
-    extraTemplates: createSchema ? [
-       {name: 'api-utils', path: path.resolve(__dirname, '../templates/schema/api-utils.ejs')}
-    ] : undefined,
   });
 
   for (const { fileName, fileContent } of apiFunctionCode.files) {
     if (fileName === 'http-client') continue;
-
-    if(fileName === 'api-utils'){
-      const { stderr } = await execAsync(`ts-to-zod ${outputPaths.dto.relativePath} ${outputPaths.schema.relativePath}`);
-      await writeFileToPath(path.resolve(process.cwd(), 'src/shared/api/utils.gen.ts'), fileContent);
-    }
 
     if(fileName === 'data-contracts'){
       await writeFileToPath(outputPaths.dto.absolutePath, fileContent);
@@ -194,7 +191,7 @@ const generateTanstackQueryCode = async (args, outputPaths) => {
 
   for (const { fileName, fileContent } of tanstackQueryCode.files) {
     if (fileName === 'http-client' || fileName === 'data-contracts') continue;
-    console.log(fileName)
+  
     const moduleName = fileName.replace('Route', '').toLowerCase();
 
     if(fileName.match(/Route$/)){
@@ -207,6 +204,37 @@ const generateTanstackQueryCode = async (args, outputPaths) => {
   }
 }
 
+const generateSchemaCode = async (args, outputPaths) => {
+  const {projectTemplate, uri, username, password} = args;
+  const templatePath = projectTemplate ? path.resolve(process.cwd(), projectTemplate) :  path.resolve(__dirname, '../templates/schema');
+  
+  const apiFunctionCode = await generateApiCode({
+    uri, 
+    username, 
+    password, 
+    templates: templatePath,
+    extraTemplates:  [
+       {name: 'api-utils', path: path.resolve(__dirname, '../templates/schema/api-utils.ejs')}
+    ],
+    schemaParsers: {}
+  });
+
+  for (const { fileName, fileContent } of apiFunctionCode.files) {
+    if (fileName === 'http-client') continue;
+
+    if(fileName === 'data-contracts'){
+      await writeFileToPath(outputPaths.dtoGen.absolutePath, fileContent);
+    }
+
+    if(fileName === 'api-utils'){
+      const { stderr } = await execAsync(`ts-to-zod ${outputPaths.dtoGen.relativePath} ${outputPaths.schema.relativePath}`);
+      await writeFileToPath(path.resolve(process.cwd(), 'src/shared/api/utils.gen.ts'), fileContent);
+    }
+  }
+
+  await fs.promises.unlink(outputPaths.dtoGen.absolutePath);
+}
+
 const main = async () => {
   const args = parseArguments();
   const outputPaths = setupOutputPaths(args);
@@ -217,6 +245,7 @@ const main = async () => {
   }
 
   try {
+    args.createSchema && await generateSchemaCode(args, outputPaths);
     await generateApiFunctionCode(args, outputPaths);
     await generateTanstackQueryCode(args, outputPaths);
   } catch (e) {

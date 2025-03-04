@@ -1,9 +1,16 @@
 import type { ZodSchema } from 'zod';
 
 export const validateSchema = (schema: ZodSchema, data: unknown) => {
-  if (!schema.safeParse(data).success) {
+  const result = schema.safeParse(data);
+
+  if (!result.success) {
+    const formattedErrors = result.error.format();
+    const errorMessage = result.error.errors.map((err) => {
+      return `Path: ${err.path.join('.')} - ${err.message}`;
+    }).join('\n');
+
     throw new Error(
-      `Invalid data according to zod schema: ${JSON.stringify(data)}`,
+      `❌ Invalid data according to zod schema:\n${errorMessage}\n\n🔍 Received data: ${JSON.stringify(data, null, 2)}`
     );
   }
 };

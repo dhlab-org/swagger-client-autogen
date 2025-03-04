@@ -51,17 +51,24 @@ const isValidType = (type) => {
 };
 
 const schema = {
-    request: payload && isValidType(payload.type) ? `${cleanDtoName(payload.type)}Schema` : null,
-    response: route.response?.type && isValidType(route.response.type) ? `${cleanDtoName(route.response.type)}Schema` : null
+    request: {
+        name: payload && isValidType(payload.type) ? `${cleanDtoName(payload.type)}Schema` : null,
+        isList: payload?.type?.includes('[]')
+    },
+    response: {
+        name: route.response?.type && isValidType(route.response.type) ? `${cleanDtoName(route.response.type)}Schema` : null,
+        isList: route.response?.type.includes('[]')
+    }
 }
 
+console.log(schema)
 %>
 
 /**
 <%~ routeDocs.lines %> */
 async <%= functionName %>(<%~ generateParams(pathParams, query, payload) %>) {
 
-<%= schema.request ? `validateSchema(${schema.request}, data);` : '' %>
+<%~ schema.request.name ? `validateSchema(${schema.request.name}, data);` : '' %>
 
 const instance = kyInstance ?? this.instance;
 <% if (query) { %>
@@ -78,7 +85,11 @@ const response = await instance.<%= route.request.method.toLowerCase() %><<%= re
 ...options,
 }).json();
 
-<%= schema.response ? `validateSchema(${schema.response}, response);` : '' %>
+
+<% if (schema.response.name) { %>
+<%~ schema.response.isList ? `response.data.forEach(res => validateSchema(${schema.response.name}, res));` : `validateSchema(${schema.response.name}, response);` %>
+<% } %>
+
 
 return response;
 }
