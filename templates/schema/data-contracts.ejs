@@ -27,6 +27,8 @@ const dataContractTemplates = {
 }
 %>
 
+import { File } from 'buffer'
+
 <% if (config.internalTemplateOptions.addUtilRequiredKeysType) { %>
 type <%~ config.Ts.CodeGenKeyword.UtilRequiredKeys %><T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 <% } %>

@@ -46,8 +46,9 @@ const cleanDtoName = (name) => {
   };
 
 const isValidType = (type) => {
-  const invalidTypes = ['void', 'any', 'null', 'undefined'];
-  return type && !invalidTypes.includes(type.toLowerCase());
+  const invalidTypes = ['void', 'any', 'null', 'undefined', 'object'];
+  const invalidPattern = new RegExp(invalidTypes.join('|'), 'i');
+  return type && !invalidPattern.test(type);
 };
 
 const schema = {

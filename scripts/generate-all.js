@@ -164,13 +164,13 @@ const generateApiFunctionCode = async (args, outputPaths) => {
 
     if(fileName === 'api-utils'){
       const { stderr } = await execAsync(`ts-to-zod ${outputPaths.dto.relativePath} ${outputPaths.schema.relativePath}`);
-      writeFileToPath(path.resolve(process.cwd(), 'src/shared/api/utils.gen.ts'), fileContent);
+      await writeFileToPath(path.resolve(process.cwd(), 'src/shared/api/utils.gen.ts'), fileContent);
     }
 
     if(fileName === 'data-contracts'){
-      writeFileToPath(outputPaths.dto.absolutePath, fileContent);
+      await writeFileToPath(outputPaths.dto.absolutePath, fileContent);
     }else if(fileName === 'route-types'){
-      writeFileToPath(outputPaths.apiInstance.absolutePath, fileContent);
+      await writeFileToPath(outputPaths.apiInstance.absolutePath, fileContent);
     }else {
       const moduleName = fileName.toLowerCase();
       const output = outputPaths.api.absolutePath.replace('{moduleName}', moduleName);
