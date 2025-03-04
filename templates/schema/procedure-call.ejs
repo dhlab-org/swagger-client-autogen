@@ -85,7 +85,7 @@ const response = await instance.<%= route.request.method.toLowerCase() %><<%= re
 
 
 <% if (schema.response.name) { %>
-<%~ schema.response.isList ? `response.data.forEach(res => validateSchema(${schema.response.name}, res));` : `validateSchema(${schema.response.name}, response);` %>
+<%~ schema.response.isList ? `response.data?.forEach(res => validateSchema(${schema.response.name}, res));` : `validateSchema(${schema.response.name}, response);` %>
 <% } %>
 
 
