@@ -15,10 +15,12 @@ const pathParams = _.values(route.request.parameters);
 const hasPathParams = pathParams.length > 0;
 const payload = route.request.payload;
 const query = route.request.query;
+const headers = route.request.headers;
+const headerName = headers ? `${pascalCase(route.routeName.usage)}Headers` : null;
 
 const queryTypeName = query ? `${pascalCase(route.routeName.usage)}QueryParams` : null;
 
-const generateParams = (params, query, payload) => {
+const generateParams = (params, query, payload, headerName) => {
     const paramList = [
         ...(params ? params.map(param => `${param.name}${param.optional ? '?' : ''}: ${param.type}`) : []),
         ...(query ? [`params${query.optional ? '?' : ''}: ${queryTypeName || query.type}`] : []),
@@ -27,11 +29,12 @@ const generateParams = (params, query, payload) => {
 
     const omitTypes = [
         ...(query ? ["'searchParams'"] : []),
-        ...(payload ? ["'json'"] : [])
+        ...(payload ? ["'json'"] : []),
+        ...(headerName ? ["'headers'"] : [])
     ];
 
     const optionsType = omitTypes.length > 0
-            ? `Omit<Options, ${omitTypes.join(' | ')}>`
+            ? `Omit<Options, ${omitTypes.join(' | ')}>${headerName ? ` & { headers: ${headerName} }` : ''}`
             : 'Options';
 
     paramList.push('kyInstance?: KyInstance', `options?: ${optionsType}`);
@@ -41,7 +44,7 @@ const generateParams = (params, query, payload) => {
 
 /**
 <%~ routeDocs.lines %> */
-<%= functionName %>(<%~ generateParams(pathParams, query, payload) %>) {
+<%= functionName %>(<%~ generateParams(pathParams, query, payload, headerName) %>) {
 const instance = kyInstance ?? this.instance;
 <% if (query) { %>
     const urlSearchParams = <%= apiClassName %>Api.createSearchParams(params);

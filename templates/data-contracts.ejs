@@ -40,11 +40,18 @@ type <%~ config.Ts.CodeGenKeyword.UtilRequiredKeys %><T, K extends keyof T> = Om
 
 <% for (const route of routes.combined) { %>
     <% for (const api of route.routes) { %>
-        <% const name = `${pascalCase(api.routeName.usage)}QueryParams`; %>
-        <% const content = api.specificArgs.query?.type; %>
-        <% if (content) { %>
-            export type <%= name %> = <%= content %>;
 
+        <% const queryName = `${pascalCase(api.routeName.usage)}QueryParams`; %>
+        <% const queryContent = api.specificArgs.query?.type; %>
+        <% if (queryContent) { %>
+            export type <%= queryName %> = <%= queryContent %>;
         <% } %>
+
+        <% const headerName = `${pascalCase(api.routeName.usage)}Headers`; %>
+        <% const headerContent = api.specificArgs.headers?.type; %>
+        <% if (headerContent) { %>
+            export type <%~ headerName %> = <%~ headerContent %>;
+        <% } %>
+
     <% } %>
 <% } %>

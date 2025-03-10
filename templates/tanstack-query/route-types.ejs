@@ -85,7 +85,10 @@ const mutationConfigs = routes
 if (mutationConfigs.length > 0) {
     const variableTypes = mutationConfigs
             .filter(config => config.hasVariables)
-            .map(config => `type T${pascalCase(config.functionName)}Variables = { ${config.requestParams} };`)
+            .map(config => {
+                const headerName = config.route.specificArgs.headers ? `${pascalCase(config.route.routeName.usage)}Headers` : null;
+                return `type T${pascalCase(config.functionName)}Variables = { ${config.requestParams}, kyInstance?: KyInstance; options?: ${headerName ? `Omit<Options, 'headers'> & { headers: ${headerName} }` : 'Options'}; };`
+            })
             .join('\n');
 
 %>
@@ -99,17 +102,10 @@ UseMutationOptions,
 useQueryClient,
 } from '@tanstack/react-query';
 
-import { 
-  <%~ modelTypes.map(v=>v.name) %>,
-  <%~ routes
-    .filter(route => route.query || (mutationConfigs || []).some(config => config.requestParams.includes('params')))
-    .map(route => `${pascalCase(route.routeName.usage)}QueryParams`)
-    .filter((value, index, self) => self.indexOf(value) === index) // 중복 제거
-    .join(',\n  ') 
-%>
-} from '@/shared/api';
+<%~ includeFile('../dto-import.ejs', { ...it }) %>
 
 import { <%= moduleName %>Api } from './instance';
+import type { KyInstance, Options } from 'ky';
 
 export const <% ~moduleName.toUpperCase() %>_MUTATION_KEY = {
 <% for (const config of mutationConfigs) { %>
@@ -121,8 +117,8 @@ const mutations = {
 <% for (const config of mutationConfigs) { %>
     <%= config.functionName %>: () => ({
     mutationFn: <% if (config.hasVariables) { %>(variables: T<%= pascalCase(config.functionName) %>Variables) => {
-    const { <%= config.requestParamsWithoutTypes %> } = variables;
-    return <%= moduleName %>Api.<%= config.functionName %>(<%= config.requestParamsWithoutTypes %>);
+    const { <%= config.requestParamsWithoutTypes %>, kyInstance, options } = variables;
+    return <%= moduleName %>Api.<%= config.functionName %>(<%= config.requestParamsWithoutTypes %>, kyInstance, options);
     }<% } else { %>() => <%= moduleName %>Api.<%= config.functionName %>()<% } %>,
     mutationKey: <% ~moduleName.toUpperCase() %>_MUTATION_KEY.<% ~config.mutationKeyName %>,
     }),
