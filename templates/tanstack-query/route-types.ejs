@@ -98,11 +98,11 @@ UseMutationOptions,
 useQueryClient,
 } from '@tanstack/react-query';
 import { useMutation } from '@tanstack/react-query';
+import type{ KyInstance, Options } from 'ky';
 
 <%~ includeFile('../dto-import.ejs', { ...it }) %>
 
 import { <%= moduleName %>Api } from './instance';
-import type{ KyInstance, Options } from 'ky';
 
 export const <% ~moduleName.toUpperCase() %>_MUTATION_KEY = {
 <% for (const config of mutationConfigs) { %>
