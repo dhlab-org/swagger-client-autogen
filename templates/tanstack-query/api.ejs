@@ -129,12 +129,13 @@ const queryConfigs = routes
 %>
 
 <% if (queryConfigs?.length) { %>
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import type {
   DefaultError,
   UseQueryOptions,
   UseSuspenseQueryOptions,
 } from '@tanstack/react-query';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
+
 <%~ includeFile('../dto-import.ejs', { ...it }) %>
 
 import { <%~ moduleName %>Api } from './instance';
