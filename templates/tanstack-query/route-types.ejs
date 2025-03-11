@@ -4,11 +4,8 @@
 */
 
 const { utils, route, modelTypes, config } = it;
-const { pascalCase } = utils;
+const { pascalCase, internalCase: camelCase } = utils;
 const { moduleName, routes } = route;
-
-const camelCase = (str) => str.replace(/([-_][a-zA-z])/g, (group) => group.toUpperCase().replace('-', '').replace('_', ''))
-        .replace(/By([A-Z])/g, (group) => `By${group.slice(2)}`);
 
 const getFunctionName = ({ request: { method, path } }) =>
         `${method}${pascalCase(path
@@ -95,17 +92,17 @@ if (mutationConfigs.length > 0) {
 
 <% if (mutationConfigs?.length) { %>
 
-import {
+import type {
 DefaultError,
-useMutation,
 UseMutationOptions,
 useQueryClient,
 } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 
 <%~ includeFile('../dto-import.ejs', { ...it }) %>
 
 import { <%= moduleName %>Api } from './instance';
-import type { KyInstance, Options } from 'ky';
+import type{ KyInstance, Options } from 'ky';
 
 export const <% ~moduleName.toUpperCase() %>_MUTATION_KEY = {
 <% for (const config of mutationConfigs) { %>
@@ -117,8 +114,8 @@ const mutations = {
 <% for (const config of mutationConfigs) { %>
     <%= config.functionName %>: () => ({
     mutationFn: <% if (config.hasVariables) { %>(variables: T<%= pascalCase(config.functionName) %>Variables) => {
-    const { <%= config.requestParamsWithoutTypes %>, kyInstance, options } = variables;
-    return <%= moduleName %>Api.<%= config.functionName %>(<%= config.requestParamsWithoutTypes %>, kyInstance, options);
+    const { <%= config.requestParamsWithoutTypes %> } = variables;
+    return <%= moduleName %>Api.<%= config.functionName %>(<%= config.requestParamsWithoutTypes %>);
     }<% } else { %>() => <%= moduleName %>Api.<%= config.functionName %>()<% } %>,
     mutationKey: <% ~moduleName.toUpperCase() %>_MUTATION_KEY.<% ~config.mutationKeyName %>,
     }),
