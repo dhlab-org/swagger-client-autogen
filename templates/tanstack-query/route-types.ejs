@@ -114,8 +114,8 @@ const mutations = {
 <% for (const config of mutationConfigs) { %>
     <%= config.functionName %>: () => ({
     mutationFn: <% if (config.hasVariables) { %>(variables: T<%= pascalCase(config.functionName) %>Variables) => {
-    const { <%= config.requestParamsWithoutTypes %> } = variables;
-    return <%= moduleName %>Api.<%= config.functionName %>(<%= config.requestParamsWithoutTypes %>);
+    const { <%= config.requestParamsWithoutTypes %>, kyInstance, options } = variables;
+    return <%= moduleName %>Api.<%= config.functionName %>(<%= config.requestParamsWithoutTypes %>, kyInstance, options);
     }<% } else { %>() => <%= moduleName %>Api.<%= config.functionName %>()<% } %>,
     mutationKey: <% ~moduleName.toUpperCase() %>_MUTATION_KEY.<% ~config.mutationKeyName %>,
     }),
