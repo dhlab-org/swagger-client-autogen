@@ -22,9 +22,9 @@ const usernameArg = argv['username'];
 const passwordArg = argv['password'];
 
 if (!url) {
-  console.error('❗️ Error: Please provide the swagger URL or swagger file name');
+  console.error('❗️ 오류: Swagger URL 또는 Swagger 파일 이름을 제공해주세요');
   console.error(
-    'Usage: node generate-all.js --uri <swagger-url|swagger-file-name> ' +
+    '사용법: node fetch-swagger.js --uri <swagger-url|swagger-file-name> ' +
       '[--username <username>] [--password <password>] '
   );
   process.exit(1);
