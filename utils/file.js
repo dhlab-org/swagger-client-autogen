@@ -28,17 +28,3 @@ export const saveEntitiesFile = async (outputPath, generateFiles) => {
     await writeFileToPath(output, fileContent);
   }
 };
-
-export const saveZodApiFile = async (outputPath, generateFiles) => {
-  for (const { fileName, fileContent } of generateFiles) {
-    if (fileName === 'http-client') continue;
-
-    // if(fileName === 'data-contracts'){
-    //   writeFileToPath()
-    // }
-
-    const moduleName = fileName.toLowerCase();
-    const output = outputPath.replace('{moduleName}', moduleName);
-    await writeFileToPath(output, fileContent);
-  }
-}

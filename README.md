@@ -48,23 +48,17 @@ cd swagger-client-autogen
 ```
 
 ### 3. 패키지 의존성 설치
-`npm` 또는 `yarn`을 사용하여 패키지 의존성을 설치합니다.
-
-```
-npm install
-```
-
-또는
+`yarn`을 사용하여 패키지 의존성을 설치합니다.
 
 ```
 yarn install
 ```
 
-### 4. npm link를 통한 글로벌 설치
-`npm link` 명령어를 사용하여 이 프로젝트를 전역적으로 설치합니다. 이를 통해 로컬에서 명령어를 글로벌로 사용할 수 있습니다.
+### 4. yarn link를 통한 글로벌 설치
+`yarn link` 명령어를 사용하여 이 프로젝트를 전역적으로 설치합니다. 이를 통해 로컬에서 명령어를 글로벌로 사용할 수 있습니다.
 
 ```
-npm link
+yarn link
 ```
 
 ## 프로젝트 업데이트
@@ -73,22 +67,16 @@ npm link
 
 ```
 git pull origin main
-npm install
-```
-
-필요한 경우, 다시 `npm link`를 실행하여 변경 사항을 적용할 수 있습니다.
-
-```
-npm link
+yarn install
 ```
 
 > #### ⚠️ 주의사항
 >
-> - `npm link`를 사용하면 프로젝트가 전역적으로 설치되지만, 로컬 프로젝트에서 발생하는 모든 변경 사항은 즉시 반영됩니다. 개발 중인 프로젝트에 사용하기에 적합한 방식입니다.
-> - 전역적으로 설치된 이 프로젝트를 제거하려면 `npm unlink` 명령어를 사용할 수 있습니다.
+> - `yarn link`를 사용하면 프로젝트가 전역적으로 설치되지만, 로컬 프로젝트에서 발생하는 모든 변경 사항은 즉시 반영됩니다. 개발 중인 프로젝트에 사용하기에 적합한 방식입니다.
+> - 전역적으로 설치된 이 프로젝트를 제거하려면 `yarn unlink` 명령어를 사용할 수 있습니다.
 >
 > ```
-> npm unlink -g swagger-client-autogen
+> yarn unlink -g swagger-client-autogen
 > ```
 
 ## 사용 방법

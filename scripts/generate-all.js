@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-import fs from 'node:fs';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import path from 'node:path';
 import minimist from 'minimist';
 import { fileURLToPath } from 'url';
 import { generateApi } from 'swagger-typescript-api';
+import { generate } from 'ts-to-zod';
 import { fetchSwagger } from '../utils/fetch-swagger.js';
-import {  writeFileToPath } from '../utils/file.js';
+import { writeFileToPath } from '../utils/file.js';
 import { AnyOfSchemaParser } from '../utils/parser.js';
 import { isUrl } from '../utils/url.js';
 const execAsync = promisify(exec);
@@ -28,6 +28,7 @@ const parseArguments = () => {
       'query-output-path',
       'mutation-output-path',
       'schema-output-path',
+      'stream-output-path',
       'project-template',
     ],
     boolean: ['create-schema'],
@@ -43,6 +44,7 @@ const parseArguments = () => {
       pt: 'project-template',
       sp: 'schema-output-path',
       cs: 'create-schema',
+      so: 'stream-output-path',
     },
   });
 
@@ -214,7 +216,9 @@ const generateSchemaCode = async (args, outputPaths) => {
     password, 
     templates: templatePath,
     extraTemplates:  [
-       {name: 'api-utils', path: path.resolve(__dirname, '../templates/schema/api-utils.ejs')}
+       {name: 'api-utils', path: projectTemplate ? path.resolve(process.cwd(), projectTemplate, 'api-utils.ejs') : path.resolve(__dirname, '../templates/schema/api-utils.ejs')},
+       {name: 'stream-utils', path: projectTemplate ? path.resolve(process.cwd(), projectTemplate, 'stream-utils.ejs') : path.resolve(__dirname, '../templates/schema/stream-utils.ejs')},
+       {name: 'type-guards', path: projectTemplate ? path.resolve(process.cwd(), projectTemplate, 'type-guards.ejs') : path.resolve(__dirname, '../templates/schema/type-guards.ejs')},
     ],
     schemaParsers: {}
   });
@@ -223,16 +227,22 @@ const generateSchemaCode = async (args, outputPaths) => {
     if (fileName === 'http-client') continue;
 
     if(fileName === 'data-contracts'){
-      await writeFileToPath(outputPaths.dtoGen.absolutePath, fileContent);
+      const schema = generate({sourceText: fileContent})
+      await writeFileToPath(path.resolve(process.cwd(), outputPaths.schema.relativePath), schema.getZodSchemasFile().replaceAll('datetime()', 'datetime({ offset: true })'))
+    }
+
+    if(fileName === 'stream-utils'){
+      await writeFileToPath(path.resolve(process.cwd(), 'src/shared/api/stream.gen.ts'), fileContent);
     }
 
     if(fileName === 'api-utils'){
-      const { stderr } = await execAsync(`ts-to-zod ${outputPaths.dtoGen.relativePath} ${outputPaths.schema.relativePath}`);
-      await writeFileToPath(path.resolve(process.cwd(), 'src/shared/api/utils.gen.ts'), fileContent);
+      await writeFileToPath(path.resolve(process.cwd(), 'src/shared/api/utils.gen.ts'), fileContent);    
+    }
+
+    if(fileName === 'type-guards'){
+      await writeFileToPath(path.resolve(process.cwd(), 'src/shared/api/type-guards.gen.ts'), fileContent);
     }
   }
-
-  await fs.promises.unlink(outputPaths.dtoGen.absolutePath);
 }
 
 const main = async () => {
