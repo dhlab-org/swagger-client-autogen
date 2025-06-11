@@ -37,7 +37,7 @@
 먼저, GitHub에서 프로젝트 저장소를 로컬로 클론합니다.
 
 ```
-git clone https://open.oss.navercorp.com/Digital-Healthcare-LAB/swagger-client-autogen.git
+git clone https://github.com/dhlab-org/swagger-client-autogen/tree/main
 ```
 
 ### 2. 디렉토리 이동
