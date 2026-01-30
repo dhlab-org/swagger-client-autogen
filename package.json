@@ -2,7 +2,9 @@
   "name": "swagger-client-autogen",
   "version": "0.2.4",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "format": "biome check --write",
     "build": "tsup && yarn postbuild",
     "postbuild": "cp -r src/templates dist/",
@@ -55,8 +57,10 @@
     "@types/js-yaml": "^4.0.9",
     "@types/minimist": "^1.2.5",
     "@types/node": "^24.1.0",
+    "@vitest/coverage-v8": "^4.0.18",
     "tsup": "^8.5.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vitest": "^4.0.18"
   },
   "packageManager": "yarn@4.7.0",
   "dependencies": {

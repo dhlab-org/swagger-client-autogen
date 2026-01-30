@@ -1,0 +1,2082 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`snapshot tests > API code generation > 'ai-chat' - api, apiInstance, dto > ai-chat/api/auth 1`] = `
+"import type { KyInstance, Options } from "ky";
+
+import type {
+  AuthResponseDto,
+  LoginRequestDto,
+  RefreshTokenRequestDto,
+  SignUpRequestDto,
+} from "@/shared/api/__generated__/dto";
+import {
+  authResponseDtoSchema,
+  loginRequestDtoSchema,
+  refreshTokenRequestDtoSchema,
+  signUpRequestDtoSchema,
+} from "@/shared/api/__generated__/schema";
+import { validateSchema } from "@/shared/api/__generated__/utils";
+
+export class AuthApi {
+  private readonly instance: KyInstance;
+
+  constructor(instance: KyInstance) {
+    this.instance = instance;
+  }
+
+  /**
+   * @tags auth
+   * @summary Sign Up
+   * @request POST:/auth/signup
+   */
+  async postAuthSignup({
+    payload,
+    kyInstance,
+    options,
+  }: TAuthApiRequestParameters["postAuthSignup"]) {
+    const instance = kyInstance ?? this.instance;
+    const validatedPayload = validateSchema(signUpRequestDtoSchema, payload);
+
+    const response = await instance
+      .post<AuthResponseDto>(\`auth/signup\`, {
+        json: validatedPayload,
+        ...options,
+      })
+      .json();
+
+    const validateResponse = validateSchema(authResponseDtoSchema, response);
+    return validateResponse;
+  }
+
+  /**
+   * @tags auth
+   * @summary Login
+   * @request POST:/auth/login
+   */
+  async postAuthLogin({
+    payload,
+    kyInstance,
+    options,
+  }: TAuthApiRequestParameters["postAuthLogin"]) {
+    const instance = kyInstance ?? this.instance;
+    const validatedPayload = validateSchema(loginRequestDtoSchema, payload);
+
+    const response = await instance
+      .post<AuthResponseDto>(\`auth/login\`, {
+        json: validatedPayload,
+        ...options,
+      })
+      .json();
+
+    const validateResponse = validateSchema(authResponseDtoSchema, response);
+    return validateResponse;
+  }
+
+  /**
+   * @tags auth
+   * @summary Logout
+   * @request POST:/auth/logout
+   */
+  async postAuthLogout({
+    kyInstance,
+    options,
+  }: TAuthApiRequestParameters["postAuthLogout"] = {}) {
+    const instance = kyInstance ?? this.instance;
+
+    const response = await instance
+      .post<void>(\`auth/logout\`, {
+        ...options,
+      })
+      .json();
+
+    return response;
+  }
+
+  /**
+   * @tags auth
+   * @summary Refresh Token
+   * @request POST:/auth/refresh
+   */
+  async postAuthRefresh({
+    payload,
+    kyInstance,
+    options,
+  }: TAuthApiRequestParameters["postAuthRefresh"]) {
+    const instance = kyInstance ?? this.instance;
+    const validatedPayload = validateSchema(
+      refreshTokenRequestDtoSchema,
+      payload,
+    );
+
+    const response = await instance
+      .post<AuthResponseDto>(\`auth/refresh\`, {
+        json: validatedPayload,
+        ...options,
+      })
+      .json();
+
+    const validateResponse = validateSchema(authResponseDtoSchema, response);
+    return validateResponse;
+  }
+}
+
+export type TAuthApiRequestParameters = {
+  postAuthSignup: {
+    payload: SignUpRequestDto;
+    kyInstance?: KyInstance;
+    options?: Options;
+  };
+  postAuthLogin: {
+    payload: LoginRequestDto;
+    kyInstance?: KyInstance;
+    options?: Options;
+  };
+  postAuthLogout: {
+    kyInstance?: KyInstance;
+    options?: Options;
+  };
+  postAuthRefresh: {
+    payload: RefreshTokenRequestDto;
+    kyInstance?: KyInstance;
+    options?: Options;
+  };
+};
+"
+`;
+
+exports[`snapshot tests > API code generation > 'ai-chat' - api, apiInstance, dto > ai-chat/api/chats 1`] = `
+"import type { KyInstance, Options } from "ky";
+
+import type {
+  ChatCreateRequestDto,
+  ChatDetailResponseDto,
+  ChatListResponseDto,
+  ChatResponseDto,
+  ChatUpdateRequestDto,
+  GetChatsQueryParams,
+  MessageCreateRequestDto,
+  MessageListResponseDto,
+  StreamStatusResponseDto,
+} from "@/shared/api/__generated__/dto";
+import {
+  chatCreateRequestDtoSchema,
+  chatDetailResponseDtoSchema,
+  chatListResponseDtoSchema,
+  chatResponseDtoSchema,
+  chatUpdateRequestDtoSchema,
+  messageCreateRequestDtoSchema,
+  messageListResponseDtoSchema,
+  streamStatusResponseDtoSchema,
+} from "@/shared/api/__generated__/schema";
+import {
+  createSearchParams,
+  validateSchema,
+} from "@/shared/api/__generated__/utils";
+import {
+  ChatsByChatIdMessagesStreamHandler,
+  type ChatsByChatIdMessagesStreamCallbacks,
+} from "../../api/stream-handlers";
+
+export class ChatsApi {
+  private readonly instance: KyInstance;
+
+  constructor(instance: KyInstance) {
+    this.instance = instance;
+  }
+
+  /**
+   * @tags chats
+   * @summary Get Chats
+   * @request GET:/chats
+   */
+  async getChats({
+    params,
+    kyInstance,
+    options,
+  }: TChatsApiRequestParameters["getChats"]) {
+    const instance = kyInstance ?? this.instance;
+
+    const urlSearchParams = createSearchParams(params);
+    const response = await instance
+      .get<ChatListResponseDto>(\`chats\`, {
+        searchParams: urlSearchParams,
+        ...options,
+      })
+      .json();
+
+    const validateResponse = validateSchema(
+      chatListResponseDtoSchema,
+      response,
+    );
+    return validateResponse;
+  }
+
+  /**
+   * @tags chats
+   * @summary Create Chat
+   * @request POST:/chats
+   */
+  async postChats({
+    payload,
+    kyInstance,
+    options,
+  }: TChatsApiRequestParameters["postChats"]) {
+    const instance = kyInstance ?? this.instance;
+    const validatedPayload = validateSchema(
+      chatCreateRequestDtoSchema,
+      payload,
+    );
+
+    const response = await instance
+      .post<ChatResponseDto>(\`chats\`, {
+        json: validatedPayload,
+        ...options,
+      })
+      .json();
+
+    const validateResponse = validateSchema(chatResponseDtoSchema, response);
+    return validateResponse;
+  }
+
+  /**
+   * @tags chats
+   * @summary Get Chat
+   * @request GET:/chats/{chatId}
+   */
+  async getChatsByChatId({
+    chatId,
+    kyInstance,
+    options,
+  }: TChatsApiRequestParameters["getChatsByChatId"]) {
+    const instance = kyInstance ?? this.instance;
+
+    const response = await instance
+      .get<ChatDetailResponseDto>(\`chats/\${chatId}\`, {
+        ...options,
+      })
+      .json();
+
+    const validateResponse = validateSchema(
+      chatDetailResponseDtoSchema,
+      response,
+    );
+    return validateResponse;
+  }
+
+  /**
+   * @tags chats
+   * @summary Update Chat Title
+   * @request PATCH:/chats/{chatId}
+   */
+  async patchChatsByChatId({
+    chatId,
+    payload,
+    kyInstance,
+    options,
+  }: TChatsApiRequestParameters["patchChatsByChatId"]) {
+    const instance = kyInstance ?? this.instance;
+    const validatedPayload = validateSchema(
+      chatUpdateRequestDtoSchema,
+      payload,
+    );
+
+    const response = await instance
+      .patch<ChatResponseDto>(\`chats/\${chatId}\`, {
+        json: validatedPayload,
+        ...options,
+      })
+      .json();
+
+    const validateResponse = validateSchema(chatResponseDtoSchema, response);
+    return validateResponse;
+  }
+
+  /**
+   * @tags chats
+   * @summary Delete Chat
+   * @request DELETE:/chats/{chatId}
+   */
+  async deleteChatsByChatId({
+    chatId,
+    kyInstance,
+    options,
+  }: TChatsApiRequestParameters["deleteChatsByChatId"]) {
+    const instance = kyInstance ?? this.instance;
+
+    const response = await instance
+      .delete<void>(\`chats/\${chatId}\`, {
+        ...options,
+      })
+      .json();
+
+    return response;
+  }
+
+  /**
+   * @tags chats
+   * @summary Get Messages
+   * @request GET:/chats/{chatId}/messages
+   */
+  async getChatsByChatIdMessages({
+    chatId,
+    kyInstance,
+    options,
+  }: TChatsApiRequestParameters["getChatsByChatIdMessages"]) {
+    const instance = kyInstance ?? this.instance;
+
+    const response = await instance
+      .get<MessageListResponseDto>(\`chats/\${chatId}/messages\`, {
+        ...options,
+      })
+      .json();
+
+    const validateResponse = validateSchema(
+      messageListResponseDtoSchema,
+      response,
+    );
+    return validateResponse;
+  }
+
+  /**
+   * @tags chats
+   * @summary Send Message
+   * @request POST:/chats/{chatId}/messages
+   *
+   * @todo 1. ReadableStreamHandler를 상속받아 "./stream-handlers" 경로에 ChatsByChatIdMessagesStreamHandler 클래스를 구현해주세요
+   * @see 구현 가이드: https://github.com/dhlab-org/swagger-client-autogen/blob/main/.docs/stream-handler-guide.md
+   *
+   * @todo 2. 스트리밍 응답은 TanStack Query hook 코드를 자동으로 생성하지 않기 때문에 직접 훅을 구현해서 사용해야 합니다.
+   * @see TanStack Query 통합 가이드: https://github.com/dhlab-org/swagger-client-autogen/blob/main/.docs/tanstack-query-stream.md
+   */
+  async postChatsByChatIdMessages({
+    chatId,
+    payload,
+    kyInstance,
+    options,
+    callbacks,
+  }: TChatsApiRequestParameters["postChatsByChatIdMessages"] & {
+    callbacks: ChatsByChatIdMessagesStreamCallbacks;
+  }) {
+    const instance = kyInstance ?? this.instance;
+    const validatedPayload = validateSchema(
+      messageCreateRequestDtoSchema,
+      payload,
+    );
+
+    const response = await instance.post<string>(\`chats/\${chatId}/messages\`, {
+      json: validatedPayload,
+      ...options,
+    });
+
+    return new ChatsByChatIdMessagesStreamHandler(response, callbacks);
+  }
+
+  /**
+   * @tags chats
+   * @summary Get Stream Status
+   * @request GET:/chats/{chatId}/stream-status
+   */
+  async getChatsByChatIdStreamStatus({
+    chatId,
+    kyInstance,
+    options,
+  }: TChatsApiRequestParameters["getChatsByChatIdStreamStatus"]) {
+    const instance = kyInstance ?? this.instance;
+
+    const response = await instance
+      .get<StreamStatusResponseDto>(\`chats/\${chatId}/stream-status\`, {
+        ...options,
+      })
+      .json();
+
+    const validateResponse = validateSchema(
+      streamStatusResponseDtoSchema,
+      response,
+    );
+    return validateResponse;
+  }
+}
+
+export type TChatsApiRequestParameters = {
+  getChats: {
+    params?: GetChatsQueryParams;
+    kyInstance?: KyInstance;
+    options?: Options;
+  };
+  postChats: {
+    payload: ChatCreateRequestDto;
+    kyInstance?: KyInstance;
+    options?: Options;
+  };
+  getChatsByChatId: {
+    chatId: number;
+    kyInstance?: KyInstance;
+    options?: Options;
+  };
+  patchChatsByChatId: {
+    chatId: number;
+    payload: ChatUpdateRequestDto;
+    kyInstance?: KyInstance;
+    options?: Options;
+  };
+  deleteChatsByChatId: {
+    chatId: number;
+    kyInstance?: KyInstance;
+    options?: Options;
+  };
+  getChatsByChatIdMessages: {
+    chatId: number;
+    kyInstance?: KyInstance;
+    options?: Options;
+  };
+  postChatsByChatIdMessages: {
+    chatId: number;
+    payload: MessageCreateRequestDto;
+    kyInstance?: KyInstance;
+    options?: Options;
+  };
+  getChatsByChatIdStreamStatus: {
+    chatId: number;
+    kyInstance?: KyInstance;
+    options?: Options;
+  };
+};
+"
+`;
+
+exports[`snapshot tests > API code generation > 'ai-chat' - api, apiInstance, dto > ai-chat/api/users 1`] = `
+"import type { KyInstance, Options } from "ky";
+
+import type {
+  UserResponseDto,
+  UserUpdateRequestDto,
+} from "@/shared/api/__generated__/dto";
+import {
+  userResponseDtoSchema,
+  userUpdateRequestDtoSchema,
+} from "@/shared/api/__generated__/schema";
+import { validateSchema } from "@/shared/api/__generated__/utils";
+
+export class UsersApi {
+  private readonly instance: KyInstance;
+
+  constructor(instance: KyInstance) {
+    this.instance = instance;
+  }
+
+  /**
+   * @tags users
+   * @summary Get Current User
+   * @request GET:/users/me
+   */
+  async getUsersMe({
+    kyInstance,
+    options,
+  }: TUsersApiRequestParameters["getUsersMe"] = {}) {
+    const instance = kyInstance ?? this.instance;
+
+    const response = await instance
+      .get<UserResponseDto>(\`users/me\`, {
+        ...options,
+      })
+      .json();
+
+    const validateResponse = validateSchema(userResponseDtoSchema, response);
+    return validateResponse;
+  }
+
+  /**
+   * @tags users
+   * @summary Update Current User
+   * @request PATCH:/users/me
+   */
+  async patchUsersMe({
+    payload,
+    kyInstance,
+    options,
+  }: TUsersApiRequestParameters["patchUsersMe"]) {
+    const instance = kyInstance ?? this.instance;
+    const validatedPayload = validateSchema(
+      userUpdateRequestDtoSchema,
+      payload,
+    );
+
+    const response = await instance
+      .patch<UserResponseDto>(\`users/me\`, {
+        json: validatedPayload,
+        ...options,
+      })
+      .json();
+
+    const validateResponse = validateSchema(userResponseDtoSchema, response);
+    return validateResponse;
+  }
+
+  /**
+   * @tags users
+   * @summary Delete Current User
+   * @request DELETE:/users/me
+   */
+  async deleteUsersMe({
+    kyInstance,
+    options,
+  }: TUsersApiRequestParameters["deleteUsersMe"] = {}) {
+    const instance = kyInstance ?? this.instance;
+
+    const response = await instance
+      .delete<void>(\`users/me\`, {
+        ...options,
+      })
+      .json();
+
+    return response;
+  }
+}
+
+export type TUsersApiRequestParameters = {
+  getUsersMe: {
+    kyInstance?: KyInstance;
+    options?: Options;
+  };
+  patchUsersMe: {
+    payload: UserUpdateRequestDto;
+    kyInstance?: KyInstance;
+    options?: Options;
+  };
+  deleteUsersMe: {
+    kyInstance?: KyInstance;
+    options?: Options;
+  };
+};
+"
+`;
+
+exports[`snapshot tests > API code generation > 'ai-chat' - api, apiInstance, dto > ai-chat/api-instance/auth 1`] = `
+"import { kyInstance } from "@/shared/api/instance";
+
+import { AuthApi } from "./index";
+
+const authApi = new AuthApi(kyInstance);
+
+export { authApi };
+"
+`;
+
+exports[`snapshot tests > API code generation > 'ai-chat' - api, apiInstance, dto > ai-chat/api-instance/chats 1`] = `
+"import { kyInstance } from "@/shared/api/instance";
+
+import { ChatsApi } from "./index";
+
+const chatsApi = new ChatsApi(kyInstance);
+
+export { chatsApi };
+"
+`;
+
+exports[`snapshot tests > API code generation > 'ai-chat' - api, apiInstance, dto > ai-chat/api-instance/users 1`] = `
+"import { kyInstance } from "@/shared/api/instance";
+
+import { UsersApi } from "./index";
+
+const usersApi = new UsersApi(kyInstance);
+
+export { usersApi };
+"
+`;
+
+exports[`snapshot tests > API code generation > 'ai-chat' - api, apiInstance, dto > ai-chat/dto 1`] = `
+"export type StreamStatusDto = "streaming" | "complete" | "error";
+
+export type MessageRoleDto = "user" | "assistant" | "system";
+
+export type SignUpRequestDto = {
+  /** @format email */
+  email: string;
+  /** @minLength 8 */
+  password: string;
+  name: string;
+};
+
+export type LoginRequestDto = {
+  /** @format email */
+  email: string;
+  password: string;
+};
+
+export type RefreshTokenRequestDto = {
+  refreshToken: string;
+};
+
+export type AuthResponseDto = {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn?: number;
+  user: UserResponseDto;
+};
+
+export type UserResponseDto = {
+  /** @format uuid */
+  id: string;
+  email: string;
+  name?: string;
+  avatarUrl?: string;
+  /** @format date-time */
+  createdAt?: string;
+};
+
+export type UserUpdateRequestDto = {
+  name?: string;
+  avatarUrl?: string;
+};
+
+export type ChatResponseDto = {
+  id: number;
+  title: string;
+  /** @format date-time */
+  createdAt: string;
+};
+
+export type ChatDetailResponseDto = {
+  id: number;
+  title: string;
+  /** @format date-time */
+  createdAt: string;
+  messageCount: number;
+};
+
+export type ChatCreateRequestDto = {
+  title: string;
+  /** @default "gpt-4" */
+  model?: string;
+};
+
+export type ChatUpdateRequestDto = {
+  title: string;
+};
+
+export type ChatListResponseDto = {
+  items: ChatResponseDto[];
+  nextCursor: string | null;
+};
+
+export type MessageListResponseDto = {
+  data: MessageResponseDto[];
+};
+
+export type MessageResponseDto = {
+  id: number;
+  chatId: number;
+  /** @format date-time */
+  createdAt: string;
+  role: MessageRoleDto;
+  content: string;
+};
+
+export type MessageCreateRequestDto = {
+  content: string;
+  role?: MessageRoleDto;
+};
+
+export type StreamStatusResponseDto = {
+  status: StreamStatusDto;
+};
+
+export type ErrorResponseDto = {
+  message: string;
+  code?: string;
+};
+
+export type GetChatsQueryParams = {
+  cursor?: string | null;
+  /** @default 10 */
+  size?: number;
+};
+"
+`;
+
+exports[`snapshot tests > API code generation > 'petstore' - api, apiInstance, dto > petstore/api/pets 1`] = `
+"import type { KyInstance, Options } from "ky";
+
+import type {
+  CreatePetRequestDto,
+  ListPetsQueryParams,
+  PetDto,
+  PetListResponseDto,
+  UpdatePetRequestDto,
+} from "@/shared/api/__generated__/dto";
+import {
+  createPetRequestDtoSchema,
+  petDtoSchema,
+  petListResponseDtoSchema,
+  updatePetRequestDtoSchema,
+} from "@/shared/api/__generated__/schema";
+import {
+  createSearchParams,
+  validateSchema,
+} from "@/shared/api/__generated__/utils";
+
+export class PetsApi {
+  private readonly instance: KyInstance;
+
+  constructor(instance: KyInstance) {
+    this.instance = instance;
+  }
+
+  /**
+   * @tags pets
+   * @summary List all pets
+   * @request GET:/pets
+   */
+  async getPets({
+    params,
+    kyInstance,
+    options,
+  }: TPetsApiRequestParameters["getPets"]) {
+    const instance = kyInstance ?? this.instance;
+
+    const urlSearchParams = createSearchParams(params);
+    const response = await instance
+      .get<PetListResponseDto>(\`pets\`, {
+        searchParams: urlSearchParams,
+        ...options,
+      })
+      .json();
+
+    const validateResponse = validateSchema(petListResponseDtoSchema, response);
+    return validateResponse;
+  }
+
+  /**
+   * @tags pets
+   * @summary Create a pet
+   * @request POST:/pets
+   */
+  async postPets({
+    payload,
+    kyInstance,
+    options,
+  }: TPetsApiRequestParameters["postPets"]) {
+    const instance = kyInstance ?? this.instance;
+    const validatedPayload = validateSchema(createPetRequestDtoSchema, payload);
+
+    const response = await instance
+      .post<PetDto>(\`pets\`, {
+        json: validatedPayload,
+        ...options,
+      })
+      .json();
+
+    const validateResponse = validateSchema(petDtoSchema, response);
+    return validateResponse;
+  }
+
+  /**
+   * @tags pets
+   * @summary Get a pet by ID
+   * @request GET:/pets/{petId}
+   */
+  async getPetsByPetId({
+    petId,
+    kyInstance,
+    options,
+  }: TPetsApiRequestParameters["getPetsByPetId"]) {
+    const instance = kyInstance ?? this.instance;
+
+    const response = await instance
+      .get<PetDto>(\`pets/\${petId}\`, {
+        ...options,
+      })
+      .json();
+
+    const validateResponse = validateSchema(petDtoSchema, response);
+    return validateResponse;
+  }
+
+  /**
+   * @tags pets
+   * @summary Update a pet
+   * @request PUT:/pets/{petId}
+   */
+  async putPetsByPetId({
+    petId,
+    payload,
+    kyInstance,
+    options,
+  }: TPetsApiRequestParameters["putPetsByPetId"]) {
+    const instance = kyInstance ?? this.instance;
+    const validatedPayload = validateSchema(updatePetRequestDtoSchema, payload);
+
+    const response = await instance
+      .put<PetDto>(\`pets/\${petId}\`, {
+        json: validatedPayload,
+        ...options,
+      })
+      .json();
+
+    const validateResponse = validateSchema(petDtoSchema, response);
+    return validateResponse;
+  }
+
+  /**
+   * @tags pets
+   * @summary Delete a pet
+   * @request DELETE:/pets/{petId}
+   */
+  async deletePetsByPetId({
+    petId,
+    kyInstance,
+    options,
+  }: TPetsApiRequestParameters["deletePetsByPetId"]) {
+    const instance = kyInstance ?? this.instance;
+
+    const response = await instance
+      .delete<void>(\`pets/\${petId}\`, {
+        ...options,
+      })
+      .json();
+
+    return response;
+  }
+}
+
+export type TPetsApiRequestParameters = {
+  getPets: {
+    params?: ListPetsQueryParams;
+    kyInstance?: KyInstance;
+    options?: Options;
+  };
+  postPets: {
+    payload: CreatePetRequestDto;
+    kyInstance?: KyInstance;
+    options?: Options;
+  };
+  getPetsByPetId: {
+    petId: number;
+    kyInstance?: KyInstance;
+    options?: Options;
+  };
+  putPetsByPetId: {
+    petId: number;
+    payload: UpdatePetRequestDto;
+    kyInstance?: KyInstance;
+    options?: Options;
+  };
+  deletePetsByPetId: {
+    petId: number;
+    kyInstance?: KyInstance;
+    options?: Options;
+  };
+};
+"
+`;
+
+exports[`snapshot tests > API code generation > 'petstore' - api, apiInstance, dto > petstore/api/users 1`] = `
+"import type { KyInstance, Options } from "ky";
+import { z } from "zod";
+
+import type { UserDto } from "@/shared/api/__generated__/dto";
+import { userDtoSchema } from "@/shared/api/__generated__/schema";
+import { validateSchema } from "@/shared/api/__generated__/utils";
+
+export class UsersApi {
+  private readonly instance: KyInstance;
+
+  constructor(instance: KyInstance) {
+    this.instance = instance;
+  }
+
+  /**
+   * @tags users
+   * @summary List users
+   * @request GET:/users
+   */
+  async getUsers({
+    kyInstance,
+    options,
+  }: TUsersApiRequestParameters["getUsers"] = {}) {
+    const instance = kyInstance ?? this.instance;
+
+    const response = await instance
+      .get<UserDto[]>(\`users\`, {
+        ...options,
+      })
+      .json();
+
+    const validateResponse = validateSchema(z.array(userDtoSchema), response);
+    return validateResponse;
+  }
+
+  /**
+   * @tags users
+   * @summary Get user by ID
+   * @request GET:/users/{userId}
+   */
+  async getUsersByUserId({
+    userId,
+    kyInstance,
+    options,
+  }: TUsersApiRequestParameters["getUsersByUserId"]) {
+    const instance = kyInstance ?? this.instance;
+
+    const response = await instance
+      .get<UserDto>(\`users/\${userId}\`, {
+        ...options,
+      })
+      .json();
+
+    const validateResponse = validateSchema(userDtoSchema, response);
+    return validateResponse;
+  }
+}
+
+export type TUsersApiRequestParameters = {
+  getUsers: {
+    kyInstance?: KyInstance;
+    options?: Options;
+  };
+  getUsersByUserId: {
+    userId: string;
+    kyInstance?: KyInstance;
+    options?: Options;
+  };
+};
+"
+`;
+
+exports[`snapshot tests > API code generation > 'petstore' - api, apiInstance, dto > petstore/api-instance/pets 1`] = `
+"import { kyInstance } from "@/shared/api/instance";
+
+import { PetsApi } from "./index";
+
+const petsApi = new PetsApi(kyInstance);
+
+export { petsApi };
+"
+`;
+
+exports[`snapshot tests > API code generation > 'petstore' - api, apiInstance, dto > petstore/api-instance/users 1`] = `
+"import { kyInstance } from "@/shared/api/instance";
+
+import { UsersApi } from "./index";
+
+const usersApi = new UsersApi(kyInstance);
+
+export { usersApi };
+"
+`;
+
+exports[`snapshot tests > API code generation > 'petstore' - api, apiInstance, dto > petstore/dto 1`] = `
+"export type PetStatusDto = "available" | "pending" | "sold";
+
+export type PetDto = {
+  id: number;
+  name: string;
+  tag?: string;
+  status: PetStatusDto;
+};
+
+export type CreatePetRequestDto = {
+  name: string;
+  tag?: string;
+};
+
+export type UpdatePetRequestDto = {
+  name?: string;
+  tag?: string;
+  status?: PetStatusDto;
+};
+
+export type PetListResponseDto = {
+  items: PetDto[];
+  nextCursor?: string;
+};
+
+export type UserDto = {
+  /** @format uuid */
+  id: string;
+  email: string;
+  name?: string;
+};
+
+export type ErrorResponseDto = {
+  message: string;
+  code?: string;
+};
+
+export type ListPetsQueryParams = {
+  /** @max 100 */
+  limit?: number;
+  cursor?: string;
+};
+"
+`;
+
+exports[`snapshot tests > Route configuration > 'ai-chat' - route metadata > ai-chat/routes 1`] = `
+[
+  {
+    "functionName": "postAuthSignup",
+    "hasPayload": true,
+    "hasQuery": false,
+    "method": "post",
+    "moduleName": "auth",
+    "path": "/auth/signup",
+    "responseType": "AuthResponseDto",
+  },
+  {
+    "functionName": "postAuthLogin",
+    "hasPayload": true,
+    "hasQuery": false,
+    "method": "post",
+    "moduleName": "auth",
+    "path": "/auth/login",
+    "responseType": "AuthResponseDto",
+  },
+  {
+    "functionName": "postAuthLogout",
+    "hasPayload": false,
+    "hasQuery": false,
+    "method": "post",
+    "moduleName": "auth",
+    "path": "/auth/logout",
+    "responseType": "void",
+  },
+  {
+    "functionName": "postAuthRefresh",
+    "hasPayload": true,
+    "hasQuery": false,
+    "method": "post",
+    "moduleName": "auth",
+    "path": "/auth/refresh",
+    "responseType": "AuthResponseDto",
+  },
+  {
+    "functionName": "getUsersMe",
+    "hasPayload": false,
+    "hasQuery": false,
+    "method": "get",
+    "moduleName": "users",
+    "path": "/users/me",
+    "responseType": "UserResponseDto",
+  },
+  {
+    "functionName": "patchUsersMe",
+    "hasPayload": true,
+    "hasQuery": false,
+    "method": "patch",
+    "moduleName": "users",
+    "path": "/users/me",
+    "responseType": "UserResponseDto",
+  },
+  {
+    "functionName": "deleteUsersMe",
+    "hasPayload": false,
+    "hasQuery": false,
+    "method": "delete",
+    "moduleName": "users",
+    "path": "/users/me",
+    "responseType": "void",
+  },
+  {
+    "functionName": "getChats",
+    "hasPayload": false,
+    "hasQuery": true,
+    "method": "get",
+    "moduleName": "chats",
+    "path": "/chats",
+    "responseType": "ChatListResponseDto",
+  },
+  {
+    "functionName": "postChats",
+    "hasPayload": true,
+    "hasQuery": false,
+    "method": "post",
+    "moduleName": "chats",
+    "path": "/chats",
+    "responseType": "ChatResponseDto",
+  },
+  {
+    "functionName": "getChatsByChatId",
+    "hasPayload": false,
+    "hasQuery": false,
+    "method": "get",
+    "moduleName": "chats",
+    "path": "/chats/\${chatId}",
+    "responseType": "ChatDetailResponseDto",
+  },
+  {
+    "functionName": "patchChatsByChatId",
+    "hasPayload": true,
+    "hasQuery": false,
+    "method": "patch",
+    "moduleName": "chats",
+    "path": "/chats/\${chatId}",
+    "responseType": "ChatResponseDto",
+  },
+  {
+    "functionName": "deleteChatsByChatId",
+    "hasPayload": false,
+    "hasQuery": false,
+    "method": "delete",
+    "moduleName": "chats",
+    "path": "/chats/\${chatId}",
+    "responseType": "void",
+  },
+  {
+    "functionName": "getChatsByChatIdMessages",
+    "hasPayload": false,
+    "hasQuery": false,
+    "method": "get",
+    "moduleName": "chats",
+    "path": "/chats/\${chatId}/messages",
+    "responseType": "MessageListResponseDto",
+  },
+  {
+    "functionName": "postChatsByChatIdMessages",
+    "hasPayload": true,
+    "hasQuery": false,
+    "method": "post",
+    "moduleName": "chats",
+    "path": "/chats/\${chatId}/messages",
+    "responseType": "string",
+  },
+  {
+    "functionName": "getChatsByChatIdStreamStatus",
+    "hasPayload": false,
+    "hasQuery": false,
+    "method": "get",
+    "moduleName": "chats",
+    "path": "/chats/\${chatId}/stream-status",
+    "responseType": "StreamStatusResponseDto",
+  },
+]
+`;
+
+exports[`snapshot tests > Route configuration > 'petstore' - route metadata > petstore/routes 1`] = `
+[
+  {
+    "functionName": "getPets",
+    "hasPayload": false,
+    "hasQuery": true,
+    "method": "get",
+    "moduleName": "pets",
+    "path": "/pets",
+    "responseType": "PetListResponseDto",
+  },
+  {
+    "functionName": "postPets",
+    "hasPayload": true,
+    "hasQuery": false,
+    "method": "post",
+    "moduleName": "pets",
+    "path": "/pets",
+    "responseType": "PetDto",
+  },
+  {
+    "functionName": "getPetsByPetId",
+    "hasPayload": false,
+    "hasQuery": false,
+    "method": "get",
+    "moduleName": "pets",
+    "path": "/pets/\${petId}",
+    "responseType": "PetDto",
+  },
+  {
+    "functionName": "putPetsByPetId",
+    "hasPayload": true,
+    "hasQuery": false,
+    "method": "put",
+    "moduleName": "pets",
+    "path": "/pets/\${petId}",
+    "responseType": "PetDto",
+  },
+  {
+    "functionName": "deletePetsByPetId",
+    "hasPayload": false,
+    "hasQuery": false,
+    "method": "delete",
+    "moduleName": "pets",
+    "path": "/pets/\${petId}",
+    "responseType": "void",
+  },
+  {
+    "functionName": "getUsers",
+    "hasPayload": false,
+    "hasQuery": false,
+    "method": "get",
+    "moduleName": "users",
+    "path": "/users",
+    "responseType": "(UserDto)[]",
+  },
+  {
+    "functionName": "getUsersByUserId",
+    "hasPayload": false,
+    "hasQuery": false,
+    "method": "get",
+    "moduleName": "users",
+    "path": "/users/\${userId}",
+    "responseType": "UserDto",
+  },
+]
+`;
+
+exports[`snapshot tests > TanStack Query code generation > 'ai-chat' - queries, mutations > ai-chat/global-mutation-effect 1`] = `
+"import type {
+  DefaultError,
+  Mutation,
+  QueryClient,
+} from "@tanstack/react-query";
+
+import type { authMutations } from "@/entities/auth/__generated__/api/mutations";
+import type { chatsMutations } from "@/entities/chats/__generated__/api/mutations";
+import type { usersMutations } from "@/entities/users/__generated__/api/mutations";
+// biome-ignore lint/suspicious/noExplicitAny: 타입 제약을 위해 any 사용
+type AnyMutationFn = (variables: any) => any;
+
+type MutationFactory = () => {
+  mutationFn: AnyMutationFn;
+  mutationKey: readonly unknown[];
+};
+
+export type MutationMap = Record<string, MutationFactory>;
+
+type ExtractMutationDef<M extends MutationMap, K extends keyof M> = ReturnType<
+  M[K]
+>;
+
+type ExtractMutationFn<
+  M extends MutationMap,
+  K extends keyof M,
+> = ExtractMutationDef<M, K>["mutationFn"];
+
+type ExtractMutationVariables<
+  M extends MutationMap,
+  K extends keyof M,
+> = Parameters<ExtractMutationFn<M, K>>[0];
+
+type ExtractMutationData<M extends MutationMap, K extends keyof M> = Awaited<
+  ReturnType<ExtractMutationFn<M, K>>
+>;
+
+export type GlobalMutationEffectMap<M extends MutationMap> = Partial<{
+  [K in keyof M]: {
+    onSuccess: {
+      invalidate: (
+        data: ExtractMutationData<M, K>,
+        variables: ExtractMutationVariables<M, K>,
+        context: unknown,
+        mutation: Mutation<
+          ExtractMutationData<M, K>,
+          DefaultError,
+          ExtractMutationVariables<M, K>,
+          unknown
+        >,
+      ) => void;
+    };
+  };
+}>;
+
+export type TAuthGlobalMutationEffects = GlobalMutationEffectMap<
+  typeof authMutations
+>;
+export type TUsersGlobalMutationEffects = GlobalMutationEffectMap<
+  typeof usersMutations
+>;
+export type TChatsGlobalMutationEffects = GlobalMutationEffectMap<
+  typeof chatsMutations
+>;
+
+export type TGlobalMutationEffectFactory = (
+  queryClient: QueryClient,
+) => Partial<
+  TAuthGlobalMutationEffects &
+    TUsersGlobalMutationEffects &
+    TChatsGlobalMutationEffects
+>;
+"
+`;
+
+exports[`snapshot tests > TanStack Query code generation > 'ai-chat' - queries, mutations > ai-chat/mutations/auth 1`] = `
+"import type { DefaultError, UseMutationOptions } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
+
+import type { AuthResponseDto } from "@/shared/api/__generated__/dto";
+import type { TAuthApiRequestParameters } from "./index";
+import { authApi } from "./instance";
+
+export const AUTH_MUTATION_KEY = {
+  POST_AUTH_SIGNUP: ["auth", "signup"] as const,
+  POST_AUTH_LOGIN: ["auth", "login"] as const,
+  POST_AUTH_LOGOUT: ["auth", "logout"] as const,
+  POST_AUTH_REFRESH: ["auth", "refresh"] as const,
+} as const;
+
+const mutations = {
+  postAuthSignup: () => ({
+    mutationFn: ({
+      payload,
+      kyInstance,
+      options,
+    }: TAuthApiRequestParameters["postAuthSignup"]) => {
+      return authApi.postAuthSignup({ payload, kyInstance, options });
+    },
+    mutationKey: AUTH_MUTATION_KEY.POST_AUTH_SIGNUP,
+    meta: {
+      mutationFnName: "postAuthSignup",
+    },
+  }),
+  postAuthLogin: () => ({
+    mutationFn: ({
+      payload,
+      kyInstance,
+      options,
+    }: TAuthApiRequestParameters["postAuthLogin"]) => {
+      return authApi.postAuthLogin({ payload, kyInstance, options });
+    },
+    mutationKey: AUTH_MUTATION_KEY.POST_AUTH_LOGIN,
+    meta: {
+      mutationFnName: "postAuthLogin",
+    },
+  }),
+  postAuthLogout: () => ({
+    mutationFn: ({
+      kyInstance,
+      options,
+    }: TAuthApiRequestParameters["postAuthLogout"]) => {
+      return authApi.postAuthLogout({ kyInstance, options });
+    },
+    mutationKey: AUTH_MUTATION_KEY.POST_AUTH_LOGOUT,
+    meta: {
+      mutationFnName: "postAuthLogout",
+    },
+  }),
+  postAuthRefresh: () => ({
+    mutationFn: ({
+      payload,
+      kyInstance,
+      options,
+    }: TAuthApiRequestParameters["postAuthRefresh"]) => {
+      return authApi.postAuthRefresh({ payload, kyInstance, options });
+    },
+    mutationKey: AUTH_MUTATION_KEY.POST_AUTH_REFRESH,
+    meta: {
+      mutationFnName: "postAuthRefresh",
+    },
+  }),
+};
+
+export { mutations as authMutations };
+
+/**
+ * @tags auth
+ * @summary Sign Up
+ * @request POST:/auth/signup
+ */
+export const usePostAuthSignupMutation = <TContext = unknown>(
+  options?: Omit<
+    UseMutationOptions<
+      AuthResponseDto,
+      DefaultError,
+      TAuthApiRequestParameters["postAuthSignup"],
+      TContext
+    >,
+    "mutationFn" | "mutationKey"
+  >,
+) => {
+  return useMutation({
+    ...mutations.postAuthSignup(),
+    ...options,
+  });
+};
+
+/**
+ * @tags auth
+ * @summary Login
+ * @request POST:/auth/login
+ */
+export const usePostAuthLoginMutation = <TContext = unknown>(
+  options?: Omit<
+    UseMutationOptions<
+      AuthResponseDto,
+      DefaultError,
+      TAuthApiRequestParameters["postAuthLogin"],
+      TContext
+    >,
+    "mutationFn" | "mutationKey"
+  >,
+) => {
+  return useMutation({
+    ...mutations.postAuthLogin(),
+    ...options,
+  });
+};
+
+/**
+ * @tags auth
+ * @summary Logout
+ * @request POST:/auth/logout
+ */
+export const usePostAuthLogoutMutation = <TContext = unknown>(
+  options?: Omit<
+    UseMutationOptions<
+      void,
+      DefaultError,
+      TAuthApiRequestParameters["postAuthLogout"],
+      TContext
+    >,
+    "mutationFn" | "mutationKey"
+  >,
+) => {
+  return useMutation({
+    ...mutations.postAuthLogout(),
+    ...options,
+  });
+};
+
+/**
+ * @tags auth
+ * @summary Refresh Token
+ * @request POST:/auth/refresh
+ */
+export const usePostAuthRefreshMutation = <TContext = unknown>(
+  options?: Omit<
+    UseMutationOptions<
+      AuthResponseDto,
+      DefaultError,
+      TAuthApiRequestParameters["postAuthRefresh"],
+      TContext
+    >,
+    "mutationFn" | "mutationKey"
+  >,
+) => {
+  return useMutation({
+    ...mutations.postAuthRefresh(),
+    ...options,
+  });
+};
+"
+`;
+
+exports[`snapshot tests > TanStack Query code generation > 'ai-chat' - queries, mutations > ai-chat/mutations/chats 1`] = `
+"import type { DefaultError, UseMutationOptions } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
+
+import type { ChatResponseDto } from "@/shared/api/__generated__/dto";
+import type { TChatsApiRequestParameters } from "./index";
+import { chatsApi } from "./instance";
+
+export const CHATS_MUTATION_KEY = {
+  POST_CHATS: ["chats"] as const,
+  PATCH_CHATS_CHATID: ["chats", "chatId"] as const,
+  DELETE_CHATS_CHATID: ["chats", "chatId"] as const,
+  POST_CHATS_CHATID_MESSAGES: ["chats", "chatId", "messages"] as const,
+} as const;
+
+const mutations = {
+  postChats: () => ({
+    mutationFn: ({
+      payload,
+      kyInstance,
+      options,
+    }: TChatsApiRequestParameters["postChats"]) => {
+      return chatsApi.postChats({ payload, kyInstance, options });
+    },
+    mutationKey: CHATS_MUTATION_KEY.POST_CHATS,
+    meta: {
+      mutationFnName: "postChats",
+    },
+  }),
+  patchChatsByChatId: () => ({
+    mutationFn: ({
+      chatId,
+      payload,
+      kyInstance,
+      options,
+    }: TChatsApiRequestParameters["patchChatsByChatId"]) => {
+      return chatsApi.patchChatsByChatId({
+        chatId,
+        payload,
+        kyInstance,
+        options,
+      });
+    },
+    mutationKey: CHATS_MUTATION_KEY.PATCH_CHATS_CHATID,
+    meta: {
+      mutationFnName: "patchChatsByChatId",
+    },
+  }),
+  deleteChatsByChatId: () => ({
+    mutationFn: ({
+      chatId,
+      kyInstance,
+      options,
+    }: TChatsApiRequestParameters["deleteChatsByChatId"]) => {
+      return chatsApi.deleteChatsByChatId({ chatId, kyInstance, options });
+    },
+    mutationKey: CHATS_MUTATION_KEY.DELETE_CHATS_CHATID,
+    meta: {
+      mutationFnName: "deleteChatsByChatId",
+    },
+  }),
+};
+
+export { mutations as chatsMutations };
+
+/**
+ * @tags chats
+ * @summary Create Chat
+ * @request POST:/chats
+ */
+export const usePostChatsMutation = <TContext = unknown>(
+  options?: Omit<
+    UseMutationOptions<
+      ChatResponseDto,
+      DefaultError,
+      TChatsApiRequestParameters["postChats"],
+      TContext
+    >,
+    "mutationFn" | "mutationKey"
+  >,
+) => {
+  return useMutation({
+    ...mutations.postChats(),
+    ...options,
+  });
+};
+
+/**
+ * @tags chats
+ * @summary Update Chat Title
+ * @request PATCH:/chats/{chatId}
+ */
+export const usePatchChatsByChatIdMutation = <TContext = unknown>(
+  options?: Omit<
+    UseMutationOptions<
+      ChatResponseDto,
+      DefaultError,
+      TChatsApiRequestParameters["patchChatsByChatId"],
+      TContext
+    >,
+    "mutationFn" | "mutationKey"
+  >,
+) => {
+  return useMutation({
+    ...mutations.patchChatsByChatId(),
+    ...options,
+  });
+};
+
+/**
+ * @tags chats
+ * @summary Delete Chat
+ * @request DELETE:/chats/{chatId}
+ */
+export const useDeleteChatsByChatIdMutation = <TContext = unknown>(
+  options?: Omit<
+    UseMutationOptions<
+      void,
+      DefaultError,
+      TChatsApiRequestParameters["deleteChatsByChatId"],
+      TContext
+    >,
+    "mutationFn" | "mutationKey"
+  >,
+) => {
+  return useMutation({
+    ...mutations.deleteChatsByChatId(),
+    ...options,
+  });
+};
+"
+`;
+
+exports[`snapshot tests > TanStack Query code generation > 'ai-chat' - queries, mutations > ai-chat/mutations/users 1`] = `
+"import type { DefaultError, UseMutationOptions } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
+
+import type { UserResponseDto } from "@/shared/api/__generated__/dto";
+import type { TUsersApiRequestParameters } from "./index";
+import { usersApi } from "./instance";
+
+export const USERS_MUTATION_KEY = {
+  PATCH_USERS_ME: ["users", "me"] as const,
+  DELETE_USERS_ME: ["users", "me"] as const,
+} as const;
+
+const mutations = {
+  patchUsersMe: () => ({
+    mutationFn: ({
+      payload,
+      kyInstance,
+      options,
+    }: TUsersApiRequestParameters["patchUsersMe"]) => {
+      return usersApi.patchUsersMe({ payload, kyInstance, options });
+    },
+    mutationKey: USERS_MUTATION_KEY.PATCH_USERS_ME,
+    meta: {
+      mutationFnName: "patchUsersMe",
+    },
+  }),
+  deleteUsersMe: () => ({
+    mutationFn: ({
+      kyInstance,
+      options,
+    }: TUsersApiRequestParameters["deleteUsersMe"]) => {
+      return usersApi.deleteUsersMe({ kyInstance, options });
+    },
+    mutationKey: USERS_MUTATION_KEY.DELETE_USERS_ME,
+    meta: {
+      mutationFnName: "deleteUsersMe",
+    },
+  }),
+};
+
+export { mutations as usersMutations };
+
+/**
+ * @tags users
+ * @summary Update Current User
+ * @request PATCH:/users/me
+ */
+export const usePatchUsersMeMutation = <TContext = unknown>(
+  options?: Omit<
+    UseMutationOptions<
+      UserResponseDto,
+      DefaultError,
+      TUsersApiRequestParameters["patchUsersMe"],
+      TContext
+    >,
+    "mutationFn" | "mutationKey"
+  >,
+) => {
+  return useMutation({
+    ...mutations.patchUsersMe(),
+    ...options,
+  });
+};
+
+/**
+ * @tags users
+ * @summary Delete Current User
+ * @request DELETE:/users/me
+ */
+export const useDeleteUsersMeMutation = <TContext = unknown>(
+  options?: Omit<
+    UseMutationOptions<
+      void,
+      DefaultError,
+      TUsersApiRequestParameters["deleteUsersMe"],
+      TContext
+    >,
+    "mutationFn" | "mutationKey"
+  >,
+) => {
+  return useMutation({
+    ...mutations.deleteUsersMe(),
+    ...options,
+  });
+};
+"
+`;
+
+exports[`snapshot tests > TanStack Query code generation > 'ai-chat' - queries, mutations > ai-chat/queries/chats 1`] = `
+"import { queryOptions } from "@tanstack/react-query";
+
+import type { GetChatsQueryParams } from "@/shared/api/__generated__/dto";
+import type { TChatsApiRequestParameters } from "./index";
+import { chatsApi } from "./instance";
+
+export const CHATS_QUERY_KEY = {
+  GET_CHATS: (params?: GetChatsQueryParams) => ["chats", params],
+  GET_CHATS_CHATID: (chatId: number) => ["chats", chatId],
+  GET_CHATS_CHATID_MESSAGES: (chatId: number) => ["chats", chatId, "messages"],
+  GET_CHATS_CHATID_STREAM_STATUS: (chatId: number) => [
+    "chats",
+    chatId,
+    "stream-status",
+  ],
+};
+
+const queries = {
+  /**
+   * @tags chats
+   * @summary Get Chats
+   * @request GET:/chats*
+   */
+  getChats: ({
+    params,
+    kyInstance,
+    options,
+  }: TChatsApiRequestParameters["getChats"]) =>
+    queryOptions({
+      queryKey: CHATS_QUERY_KEY.GET_CHATS(params),
+      queryFn: () => chatsApi.getChats({ params, kyInstance, options }),
+    }),
+  /**
+   * @tags chats
+   * @summary Get Chat
+   * @request GET:/chats/{chatId}*
+   */
+  getChatsByChatId: ({
+    chatId,
+    kyInstance,
+    options,
+  }: TChatsApiRequestParameters["getChatsByChatId"]) =>
+    queryOptions({
+      queryKey: CHATS_QUERY_KEY.GET_CHATS_CHATID(chatId),
+      queryFn: () => chatsApi.getChatsByChatId({ chatId, kyInstance, options }),
+      staleTime: Infinity,
+    }),
+  /**
+   * @tags chats
+   * @summary Get Messages
+   * @request GET:/chats/{chatId}/messages*
+   */
+  getChatsByChatIdMessages: ({
+    chatId,
+    kyInstance,
+    options,
+  }: TChatsApiRequestParameters["getChatsByChatIdMessages"]) =>
+    queryOptions({
+      queryKey: CHATS_QUERY_KEY.GET_CHATS_CHATID_MESSAGES(chatId),
+      queryFn: () =>
+        chatsApi.getChatsByChatIdMessages({ chatId, kyInstance, options }),
+    }),
+  /**
+   * @tags chats
+   * @summary Get Stream Status
+   * @request GET:/chats/{chatId}/stream-status*
+   */
+  getChatsByChatIdStreamStatus: ({
+    chatId,
+    kyInstance,
+    options,
+  }: TChatsApiRequestParameters["getChatsByChatIdStreamStatus"]) =>
+    queryOptions({
+      queryKey: CHATS_QUERY_KEY.GET_CHATS_CHATID_STREAM_STATUS(chatId),
+      queryFn: () =>
+        chatsApi.getChatsByChatIdStreamStatus({ chatId, kyInstance, options }),
+    }),
+};
+
+export { queries as chatsQueries };
+"
+`;
+
+exports[`snapshot tests > TanStack Query code generation > 'ai-chat' - queries, mutations > ai-chat/queries/users 1`] = `
+"import { queryOptions } from "@tanstack/react-query";
+
+import type { TUsersApiRequestParameters } from "./index";
+import { usersApi } from "./instance";
+
+export const USERS_QUERY_KEY = {
+  GET_USERS_ME: () => ["users", "me"],
+};
+
+const queries = {
+  /**
+   * @tags users
+   * @summary Get Current User
+   * @request GET:/users/me*
+   */
+  getUsersMe: ({
+    kyInstance,
+    options,
+  }: TUsersApiRequestParameters["getUsersMe"]) =>
+    queryOptions({
+      queryKey: USERS_QUERY_KEY.GET_USERS_ME(),
+      queryFn: () => usersApi.getUsersMe({ kyInstance, options }),
+      staleTime: Infinity,
+      gcTime: Infinity,
+    }),
+};
+
+export { queries as usersQueries };
+"
+`;
+
+exports[`snapshot tests > TanStack Query code generation > 'petstore' - queries, mutations > petstore/global-mutation-effect 1`] = `
+"import type {
+  DefaultError,
+  Mutation,
+  QueryClient,
+} from "@tanstack/react-query";
+
+import type { petsMutations } from "@/entities/pets/__generated__/api/mutations";
+import type { usersMutations } from "@/entities/users/__generated__/api/mutations";
+// biome-ignore lint/suspicious/noExplicitAny: 타입 제약을 위해 any 사용
+type AnyMutationFn = (variables: any) => any;
+
+type MutationFactory = () => {
+  mutationFn: AnyMutationFn;
+  mutationKey: readonly unknown[];
+};
+
+export type MutationMap = Record<string, MutationFactory>;
+
+type ExtractMutationDef<M extends MutationMap, K extends keyof M> = ReturnType<
+  M[K]
+>;
+
+type ExtractMutationFn<
+  M extends MutationMap,
+  K extends keyof M,
+> = ExtractMutationDef<M, K>["mutationFn"];
+
+type ExtractMutationVariables<
+  M extends MutationMap,
+  K extends keyof M,
+> = Parameters<ExtractMutationFn<M, K>>[0];
+
+type ExtractMutationData<M extends MutationMap, K extends keyof M> = Awaited<
+  ReturnType<ExtractMutationFn<M, K>>
+>;
+
+export type GlobalMutationEffectMap<M extends MutationMap> = Partial<{
+  [K in keyof M]: {
+    onSuccess: {
+      invalidate: (
+        data: ExtractMutationData<M, K>,
+        variables: ExtractMutationVariables<M, K>,
+        context: unknown,
+        mutation: Mutation<
+          ExtractMutationData<M, K>,
+          DefaultError,
+          ExtractMutationVariables<M, K>,
+          unknown
+        >,
+      ) => void;
+    };
+  };
+}>;
+
+export type TPetsGlobalMutationEffects = GlobalMutationEffectMap<
+  typeof petsMutations
+>;
+export type TUsersGlobalMutationEffects = GlobalMutationEffectMap<
+  typeof usersMutations
+>;
+
+export type TGlobalMutationEffectFactory = (
+  queryClient: QueryClient,
+) => Partial<TPetsGlobalMutationEffects & TUsersGlobalMutationEffects>;
+"
+`;
+
+exports[`snapshot tests > TanStack Query code generation > 'petstore' - queries, mutations > petstore/mutations/pets 1`] = `
+"import type { DefaultError, UseMutationOptions } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
+
+import type { PetDto } from "@/shared/api/__generated__/dto";
+import type { TPetsApiRequestParameters } from "./index";
+import { petsApi } from "./instance";
+
+export const PETS_MUTATION_KEY = {
+  POST_PETS: ["pets"] as const,
+  PUT_PETS_PETID: ["pets", "petId"] as const,
+  DELETE_PETS_PETID: ["pets", "petId"] as const,
+} as const;
+
+const mutations = {
+  postPets: () => ({
+    mutationFn: ({
+      payload,
+      kyInstance,
+      options,
+    }: TPetsApiRequestParameters["postPets"]) => {
+      return petsApi.postPets({ payload, kyInstance, options });
+    },
+    mutationKey: PETS_MUTATION_KEY.POST_PETS,
+    meta: {
+      mutationFnName: "postPets",
+    },
+  }),
+  putPetsByPetId: () => ({
+    mutationFn: ({
+      petId,
+      payload,
+      kyInstance,
+      options,
+    }: TPetsApiRequestParameters["putPetsByPetId"]) => {
+      return petsApi.putPetsByPetId({ petId, payload, kyInstance, options });
+    },
+    mutationKey: PETS_MUTATION_KEY.PUT_PETS_PETID,
+    meta: {
+      mutationFnName: "putPetsByPetId",
+    },
+  }),
+  deletePetsByPetId: () => ({
+    mutationFn: ({
+      petId,
+      kyInstance,
+      options,
+    }: TPetsApiRequestParameters["deletePetsByPetId"]) => {
+      return petsApi.deletePetsByPetId({ petId, kyInstance, options });
+    },
+    mutationKey: PETS_MUTATION_KEY.DELETE_PETS_PETID,
+    meta: {
+      mutationFnName: "deletePetsByPetId",
+    },
+  }),
+};
+
+export { mutations as petsMutations };
+
+/**
+ * @tags pets
+ * @summary Create a pet
+ * @request POST:/pets
+ */
+export const usePostPetsMutation = <TContext = unknown>(
+  options?: Omit<
+    UseMutationOptions<
+      PetDto,
+      DefaultError,
+      TPetsApiRequestParameters["postPets"],
+      TContext
+    >,
+    "mutationFn" | "mutationKey"
+  >,
+) => {
+  return useMutation({
+    ...mutations.postPets(),
+    ...options,
+  });
+};
+
+/**
+ * @tags pets
+ * @summary Update a pet
+ * @request PUT:/pets/{petId}
+ */
+export const usePutPetsByPetIdMutation = <TContext = unknown>(
+  options?: Omit<
+    UseMutationOptions<
+      PetDto,
+      DefaultError,
+      TPetsApiRequestParameters["putPetsByPetId"],
+      TContext
+    >,
+    "mutationFn" | "mutationKey"
+  >,
+) => {
+  return useMutation({
+    ...mutations.putPetsByPetId(),
+    ...options,
+  });
+};
+
+/**
+ * @tags pets
+ * @summary Delete a pet
+ * @request DELETE:/pets/{petId}
+ */
+export const useDeletePetsByPetIdMutation = <TContext = unknown>(
+  options?: Omit<
+    UseMutationOptions<
+      void,
+      DefaultError,
+      TPetsApiRequestParameters["deletePetsByPetId"],
+      TContext
+    >,
+    "mutationFn" | "mutationKey"
+  >,
+) => {
+  return useMutation({
+    ...mutations.deletePetsByPetId(),
+    ...options,
+  });
+};
+"
+`;
+
+exports[`snapshot tests > TanStack Query code generation > 'petstore' - queries, mutations > petstore/queries/pets 1`] = `
+"import { queryOptions } from "@tanstack/react-query";
+
+import type { ListPetsQueryParams } from "@/shared/api/__generated__/dto";
+import type { TPetsApiRequestParameters } from "./index";
+import { petsApi } from "./instance";
+
+export const PETS_QUERY_KEY = {
+  GET_PETS: (params?: ListPetsQueryParams) => ["pets", params],
+  GET_PETS_PETID: (petId: number) => ["pets", petId],
+};
+
+const queries = {
+  /**
+   * @tags pets
+   * @summary List all pets
+   * @request GET:/pets*
+   */
+  getPets: ({
+    params,
+    kyInstance,
+    options,
+  }: TPetsApiRequestParameters["getPets"]) =>
+    queryOptions({
+      queryKey: PETS_QUERY_KEY.GET_PETS(params),
+      queryFn: () => petsApi.getPets({ params, kyInstance, options }),
+    }),
+  /**
+   * @tags pets
+   * @summary Get a pet by ID
+   * @request GET:/pets/{petId}*
+   */
+  getPetsByPetId: ({
+    petId,
+    kyInstance,
+    options,
+  }: TPetsApiRequestParameters["getPetsByPetId"]) =>
+    queryOptions({
+      queryKey: PETS_QUERY_KEY.GET_PETS_PETID(petId),
+      queryFn: () => petsApi.getPetsByPetId({ petId, kyInstance, options }),
+      staleTime: Infinity,
+    }),
+};
+
+export { queries as petsQueries };
+"
+`;
+
+exports[`snapshot tests > TanStack Query code generation > 'petstore' - queries, mutations > petstore/queries/users 1`] = `
+"import { queryOptions } from "@tanstack/react-query";
+
+import type { TUsersApiRequestParameters } from "./index";
+import { usersApi } from "./instance";
+
+export const USERS_QUERY_KEY = {
+  GET_USERS: () => ["users"],
+  GET_USERS_USERID: (userId: string) => ["users", userId],
+};
+
+const queries = {
+  /**
+   * @tags users
+   * @summary List users
+   * @request GET:/users*
+   */
+  getUsers: ({ kyInstance, options }: TUsersApiRequestParameters["getUsers"]) =>
+    queryOptions({
+      queryKey: USERS_QUERY_KEY.GET_USERS(),
+      queryFn: () => usersApi.getUsers({ kyInstance, options }),
+      staleTime: Infinity,
+      gcTime: Infinity,
+    }),
+  /**
+   * @tags users
+   * @summary Get user by ID
+   * @request GET:/users/{userId}*
+   */
+  getUsersByUserId: ({
+    userId,
+    kyInstance,
+    options,
+  }: TUsersApiRequestParameters["getUsersByUserId"]) =>
+    queryOptions({
+      queryKey: USERS_QUERY_KEY.GET_USERS_USERID(userId),
+      queryFn: () => usersApi.getUsersByUserId({ userId, kyInstance, options }),
+    }),
+};
+
+export { queries as usersQueries };
+"
+`;
