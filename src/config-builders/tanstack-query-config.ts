@@ -8,7 +8,13 @@ import { pipe } from '../utils/fp';
 export type TanstackQueryConfig = {
   query: {
     queryKeyArgs: string;
+    /** queryKey 함수 시그니처 (선택 params 포함, 예: 'params?: GetChatsQueryParams') */
+    queryKeySignatures: string;
     queryKeyConstanstName: string;
+    /** rootKey 정적 배열 (예: ['chats', 'getChats']) */
+    queryKeyRootKey: string;
+    /** queryKey 함수 본문에서 rootKey 뒤에 붙일 변수 부분 (예: '...(params ? [params] : [])' 또는 'chatId') */
+    queryKeyVariablePartsExpression: string;
     queryKeyConstanstFunction: string;
     queryHookName: string;
     suspenseQueryHookName: string;
@@ -35,7 +41,7 @@ export function generateTanstackQueryConfig(route: ParsedRoute, routeConfig: Rou
    * @example
    * parseTimeValue('5m') => { expression: '5 * 60 * 1000', comment: '5분' }
    * parseTimeValue('1h30m') => { expression: '1 * 60 * 60 * 1000 + 30 * 60 * 1000', comment: '1시간 30분' }
-   * parseTimeValue('Infinity') => { expression: 'Infinity', comment: undefined }
+   * parseTimeValue('Infinity') => { expression: 'Number.POSITIVE_INFINITY', comment: undefined }
    * parseTimeValue('static') => { expression: "'static'", comment: undefined }
    */
   const parseTimeValue = (
@@ -52,7 +58,7 @@ export function generateTanstackQueryConfig(route: ParsedRoute, routeConfig: Rou
 
     // Infinity는 특별 처리 (대소문자 구분 없음)
     if (value.toLowerCase() === 'infinity') {
-      return { expression: 'Infinity' };
+      return { expression: 'Number.POSITIVE_INFINITY' };
     }
 
     // static은 특별 처리 (staleTime 전용)
@@ -97,9 +103,23 @@ export function generateTanstackQueryConfig(route: ParsedRoute, routeConfig: Rou
   const parsedStaleTime = parseTimeValue(xStaleTime);
   const parsedGcTime = parseTimeValue(xGcTime);
 
+  const requiredSigs = routeConfig.request.parameters.signatures.required.join(', ');
+  const hasOptionalParams = Boolean(route.request.query) && !routeConfig.request.parameters.arguments.required.includes('params');
+  const hasOptionalPayload = Boolean(route.request.payload) && !routeConfig.request.parameters.arguments.required.includes('payload');
+  let queryKeySignatures = hasOptionalParams
+    ? (requiredSigs ? `${requiredSigs}, params?: ${routeConfig.request.query.dtoName ?? 'unknown'}` : `params?: ${routeConfig.request.query.dtoName ?? 'unknown'}`)
+    : requiredSigs;
+  if (hasOptionalPayload) {
+    const payloadType = routeConfig.request.payload.dtoName ?? 'unknown';
+    queryKeySignatures = queryKeySignatures ? `${queryKeySignatures}, payload?: ${payloadType}` : `payload?: ${payloadType}`;
+  }
+
   const queryOptions: TanstackQueryConfig['query'] = {
     queryKeyArgs: routeConfig.request.parameters.arguments.required.join(', '),
+    queryKeySignatures,
     queryKeyConstanstName: buildKeyConstantsName(route.request) ?? '',
+    queryKeyRootKey: '',
+    queryKeyVariablePartsExpression: '',
     queryKeyConstanstFunction: '',
     queryHookName: `use${pascalCaseRouteName}Query`,
     suspenseQueryHookName: `use${pascalCaseRouteName}SuspenseQuery`,
@@ -128,25 +148,49 @@ export function generateTanstackQueryConfig(route: ParsedRoute, routeConfig: Rou
 function withRouteConfig(route: ParsedRoute, routeConfig: RouteConfig) {
   return {
     setQueryKeyConstantsFunction: (config: TanstackQueryConfig) => {
-      const buildQueryKeyArray = (route: ParsedRoute) => {
-        const {
-          request: { path, method, query, payload },
-        } = route;
+      const {
+        request: { path, method, query, payload },
+      } = route;
 
-        if (!path || !method) return null;
+      if (!path || !method) {
+        return config;
+      }
 
-        const pathSegments = path
-          .split('/')
-          .filter((segment) => segment && segment !== 'api')
-          .map((segment) => (segment.match(/\${/) ? segment.replace(/[${}]/g, '') : `'${segment}'`));
-        const queryParamsSegments = query ? 'params' : null;
-        const payloadSegments = payload ? 'payload' : null;
+      const pathSegments = path
+        .split('/')
+        .filter((segment) => segment && segment !== 'api');
+      const firstSegment = pathSegments[0];
+      const firstSegmentLiteral =
+        firstSegment !== undefined && !firstSegment.match(/\$\{/)
+          ? `'${firstSegment}'`
+          : `'${route.raw.moduleName}'`;
+      const queryFnNameLiteral = `'${routeConfig.request.functionName}'`;
+      const rootKey = `[${firstSegmentLiteral}, ${queryFnNameLiteral}]`;
 
-        return `[${[...pathSegments, queryParamsSegments, payloadSegments].filter(Boolean).join(', ')}]`;
-      };
+      // undefined인 요소는 key에 포함하지 않음 (TanStack Query는 key 길이 비교를 먼저 하므로)
+      const required = routeConfig.request.parameters.arguments.required;
+      const hasOptionalParams = Boolean(query) && !required.includes('params');
+      const hasOptionalPayload = Boolean(payload) && !required.includes('payload');
+      const variableParts = required
+        .map((arg) => {
+          if (arg === 'params') return '...(params ? [params] : [])';
+          if (arg === 'payload') return '...(payload ? [payload] : [])';
+          return `...(${arg} != null ? [${arg}] : [])`;
+        })
+        .join(', ');
+      let variablePartsExpression = hasOptionalParams
+        ? (variableParts ? `${variableParts}, ...(params ? [params] : [])` : '...(params ? [params] : [])')
+        : variableParts;
+      if (hasOptionalPayload) {
+        variablePartsExpression = variablePartsExpression
+          ? `${variablePartsExpression}, ...(payload ? [payload] : [])`
+          : '...(payload ? [payload] : [])';
+      }
 
       return produce(config, (draft) => {
-        draft.query.queryKeyConstanstFunction = `(${routeConfig.request.parameters.signatures.required.join(', ')})=>${buildQueryKeyArray(route)}`;
+        draft.query.queryKeyRootKey = rootKey;
+        draft.query.queryKeyVariablePartsExpression = variablePartsExpression;
+        draft.query.queryKeyConstanstFunction = ''; // 템플릿에서 rootKey/queryKey 구조로 생성
       });
     },
     setMutationKeyConstantsContent: (config: TanstackQueryConfig) => {
