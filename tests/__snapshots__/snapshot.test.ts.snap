@@ -1684,16 +1684,37 @@ exports[`snapshot tests > TanStack Query code generation > 'ai-chat' - queries, 
 import type { GetChatsQueryParams } from "@/shared/api/__generated__/dto";
 import type { TChatsApiRequestParameters } from "./index";
 import { chatsApi } from "./instance";
+const baseKey = "chats";
 
-export const CHATS_QUERY_KEY = {
-  GET_CHATS: (params?: GetChatsQueryParams) => ["chats", params],
-  GET_CHATS_CHATID: (chatId: number) => ["chats", chatId],
-  GET_CHATS_CHATID_MESSAGES: (chatId: number) => ["chats", chatId, "messages"],
-  GET_CHATS_CHATID_STREAM_STATUS: (chatId: number) => [
-    "chats",
-    chatId,
-    "stream-status",
-  ],
+const queryKeys = {
+  getChats: {
+    rootKey: [baseKey, "getChats"],
+    queryKey: (params?: GetChatsQueryParams) => [
+      ...queryKeys.getChats.rootKey,
+      ...(params ? [params] : []),
+    ],
+  },
+  getChatsByChatId: {
+    rootKey: [baseKey, "getChatsByChatId"],
+    queryKey: (chatId: number) => [
+      ...queryKeys.getChatsByChatId.rootKey,
+      ...(chatId != null ? [chatId] : []),
+    ],
+  },
+  getChatsByChatIdMessages: {
+    rootKey: [baseKey, "getChatsByChatIdMessages"],
+    queryKey: (chatId: number) => [
+      ...queryKeys.getChatsByChatIdMessages.rootKey,
+      ...(chatId != null ? [chatId] : []),
+    ],
+  },
+  getChatsByChatIdStreamStatus: {
+    rootKey: [baseKey, "getChatsByChatIdStreamStatus"],
+    queryKey: (chatId: number) => [
+      ...queryKeys.getChatsByChatIdStreamStatus.rootKey,
+      ...(chatId != null ? [chatId] : []),
+    ],
+  },
 };
 
 const queries = {
@@ -1708,9 +1729,10 @@ const queries = {
     options,
   }: TChatsApiRequestParameters["getChats"]) =>
     queryOptions({
-      queryKey: CHATS_QUERY_KEY.GET_CHATS(params),
+      queryKey: queryKeys.getChats.queryKey(params),
       queryFn: () => chatsApi.getChats({ params, kyInstance, options }),
     }),
+
   /**
    * @tags chats
    * @summary Get Chat
@@ -1722,10 +1744,11 @@ const queries = {
     options,
   }: TChatsApiRequestParameters["getChatsByChatId"]) =>
     queryOptions({
-      queryKey: CHATS_QUERY_KEY.GET_CHATS_CHATID(chatId),
+      queryKey: queryKeys.getChatsByChatId.queryKey(chatId),
       queryFn: () => chatsApi.getChatsByChatId({ chatId, kyInstance, options }),
-      staleTime: Infinity,
+      staleTime: Number.POSITIVE_INFINITY,
     }),
+
   /**
    * @tags chats
    * @summary Get Messages
@@ -1737,10 +1760,11 @@ const queries = {
     options,
   }: TChatsApiRequestParameters["getChatsByChatIdMessages"]) =>
     queryOptions({
-      queryKey: CHATS_QUERY_KEY.GET_CHATS_CHATID_MESSAGES(chatId),
+      queryKey: queryKeys.getChatsByChatIdMessages.queryKey(chatId),
       queryFn: () =>
         chatsApi.getChatsByChatIdMessages({ chatId, kyInstance, options }),
     }),
+
   /**
    * @tags chats
    * @summary Get Stream Status
@@ -1752,13 +1776,17 @@ const queries = {
     options,
   }: TChatsApiRequestParameters["getChatsByChatIdStreamStatus"]) =>
     queryOptions({
-      queryKey: CHATS_QUERY_KEY.GET_CHATS_CHATID_STREAM_STATUS(chatId),
+      queryKey: queryKeys.getChatsByChatIdStreamStatus.queryKey(chatId),
       queryFn: () =>
         chatsApi.getChatsByChatIdStreamStatus({ chatId, kyInstance, options }),
     }),
 };
 
-export { queries as chatsQueries };
+export {
+  baseKey as chatsBaseKey,
+  queries as chatsQueries,
+  queryKeys as chatsQueryKeys,
+};
 "
 `;
 
@@ -1767,9 +1795,13 @@ exports[`snapshot tests > TanStack Query code generation > 'ai-chat' - queries, 
 
 import type { TUsersApiRequestParameters } from "./index";
 import { usersApi } from "./instance";
+const baseKey = "users";
 
-export const USERS_QUERY_KEY = {
-  GET_USERS_ME: () => ["users", "me"],
+const queryKeys = {
+  getUsersMe: {
+    rootKey: [baseKey, "getUsersMe"],
+    queryKey: () => [...queryKeys.getUsersMe.rootKey],
+  },
 };
 
 const queries = {
@@ -1783,14 +1815,18 @@ const queries = {
     options,
   }: TUsersApiRequestParameters["getUsersMe"]) =>
     queryOptions({
-      queryKey: USERS_QUERY_KEY.GET_USERS_ME(),
+      queryKey: queryKeys.getUsersMe.queryKey(),
       queryFn: () => usersApi.getUsersMe({ kyInstance, options }),
-      staleTime: Infinity,
-      gcTime: Infinity,
+      staleTime: Number.POSITIVE_INFINITY,
+      gcTime: Number.POSITIVE_INFINITY,
     }),
 };
 
-export { queries as usersQueries };
+export {
+  baseKey as usersBaseKey,
+  queries as usersQueries,
+  queryKeys as usersQueryKeys,
+};
 "
 `;
 
@@ -1995,10 +2031,23 @@ exports[`snapshot tests > TanStack Query code generation > 'petstore' - queries,
 import type { ListPetsQueryParams } from "@/shared/api/__generated__/dto";
 import type { TPetsApiRequestParameters } from "./index";
 import { petsApi } from "./instance";
+const baseKey = "pets";
 
-export const PETS_QUERY_KEY = {
-  GET_PETS: (params?: ListPetsQueryParams) => ["pets", params],
-  GET_PETS_PETID: (petId: number) => ["pets", petId],
+const queryKeys = {
+  getPets: {
+    rootKey: [baseKey, "getPets"],
+    queryKey: (params?: ListPetsQueryParams) => [
+      ...queryKeys.getPets.rootKey,
+      ...(params ? [params] : []),
+    ],
+  },
+  getPetsByPetId: {
+    rootKey: [baseKey, "getPetsByPetId"],
+    queryKey: (petId: number) => [
+      ...queryKeys.getPetsByPetId.rootKey,
+      ...(petId != null ? [petId] : []),
+    ],
+  },
 };
 
 const queries = {
@@ -2013,9 +2062,10 @@ const queries = {
     options,
   }: TPetsApiRequestParameters["getPets"]) =>
     queryOptions({
-      queryKey: PETS_QUERY_KEY.GET_PETS(params),
+      queryKey: queryKeys.getPets.queryKey(params),
       queryFn: () => petsApi.getPets({ params, kyInstance, options }),
     }),
+
   /**
    * @tags pets
    * @summary Get a pet by ID
@@ -2027,13 +2077,17 @@ const queries = {
     options,
   }: TPetsApiRequestParameters["getPetsByPetId"]) =>
     queryOptions({
-      queryKey: PETS_QUERY_KEY.GET_PETS_PETID(petId),
+      queryKey: queryKeys.getPetsByPetId.queryKey(petId),
       queryFn: () => petsApi.getPetsByPetId({ petId, kyInstance, options }),
-      staleTime: Infinity,
+      staleTime: Number.POSITIVE_INFINITY,
     }),
 };
 
-export { queries as petsQueries };
+export {
+  baseKey as petsBaseKey,
+  queries as petsQueries,
+  queryKeys as petsQueryKeys,
+};
 "
 `;
 
@@ -2042,10 +2096,20 @@ exports[`snapshot tests > TanStack Query code generation > 'petstore' - queries,
 
 import type { TUsersApiRequestParameters } from "./index";
 import { usersApi } from "./instance";
+const baseKey = "users";
 
-export const USERS_QUERY_KEY = {
-  GET_USERS: () => ["users"],
-  GET_USERS_USERID: (userId: string) => ["users", userId],
+const queryKeys = {
+  getUsers: {
+    rootKey: [baseKey, "getUsers"],
+    queryKey: () => [...queryKeys.getUsers.rootKey],
+  },
+  getUsersByUserId: {
+    rootKey: [baseKey, "getUsersByUserId"],
+    queryKey: (userId: string) => [
+      ...queryKeys.getUsersByUserId.rootKey,
+      ...(userId != null ? [userId] : []),
+    ],
+  },
 };
 
 const queries = {
@@ -2056,11 +2120,12 @@ const queries = {
    */
   getUsers: ({ kyInstance, options }: TUsersApiRequestParameters["getUsers"]) =>
     queryOptions({
-      queryKey: USERS_QUERY_KEY.GET_USERS(),
+      queryKey: queryKeys.getUsers.queryKey(),
       queryFn: () => usersApi.getUsers({ kyInstance, options }),
-      staleTime: Infinity,
-      gcTime: Infinity,
+      staleTime: Number.POSITIVE_INFINITY,
+      gcTime: Number.POSITIVE_INFINITY,
     }),
+
   /**
    * @tags users
    * @summary Get user by ID
@@ -2072,11 +2137,15 @@ const queries = {
     options,
   }: TUsersApiRequestParameters["getUsersByUserId"]) =>
     queryOptions({
-      queryKey: USERS_QUERY_KEY.GET_USERS_USERID(userId),
+      queryKey: queryKeys.getUsersByUserId.queryKey(userId),
       queryFn: () => usersApi.getUsersByUserId({ userId, kyInstance, options }),
     }),
 };
 
-export { queries as usersQueries };
+export {
+  baseKey as usersBaseKey,
+  queries as usersQueries,
+  queryKeys as usersQueryKeys,
+};
 "
 `;

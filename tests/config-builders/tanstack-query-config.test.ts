@@ -1,29 +1,44 @@
 import { describe, expect, it } from 'vitest';
-import {
-  generateTanstackQueryConfig,
-  type TanstackQueryConfig,
-} from '../../src/config-builders/tanstack-query-config';
+import { generateTanstackQueryConfig } from '../../src/config-builders/tanstack-query-config';
 import type { RouteConfig } from '../../src/types/route-config';
-import type { ParsedRoute } from '../../src/types/swagger-typescript-api';
+import type { ParsedRoute, RawRouteInfo } from '../../src/types/swagger-typescript-api';
+
+/** 테스트용: raw에 x-staleTime, x-gcTime 등 확장 프로퍼티 허용 */
+type TestParsedRoute = Omit<ParsedRoute, 'raw'> & {
+  raw: RawRouteInfo & Record<string, unknown>;
+};
+
+const baseRaw: RawRouteInfo = {
+  operationId: 'getUsers',
+  method: 'get',
+  route: '/users',
+  moduleName: 'users',
+  responsesTypes: [],
+};
 
 // Helper to create minimal ParsedRoute mock
-function createMockRoute(overrides: Partial<ParsedRoute> = {}): ParsedRoute {
+function createMockRoute(
+  overrides: Partial<Omit<ParsedRoute, 'raw'>> & {
+    raw?: Partial<RawRouteInfo> & Record<string, unknown>;
+  } = {},
+): TestParsedRoute {
+  const { raw: rawOverrides, ...rest } = overrides;
   return {
+    id: '',
+    namespace: '',
     routeName: {
       usage: 'getUsers',
       original: 'GetUsers',
+      duplicate: false,
     },
     request: {
       method: 'get',
       path: '/users',
-      query: undefined,
-      payload: undefined,
     },
-    raw: {
-      moduleName: 'users',
-    },
-    ...overrides,
-  } as ParsedRoute;
+    response: {},
+    ...rest,
+    raw: { ...baseRaw, ...rawOverrides },
+  };
 }
 
 // Helper to create minimal RouteConfig mock
@@ -80,7 +95,7 @@ describe('tanstack-query-config', () => {
     describe('basic configuration', () => {
       it('should generate query hook names correctly', () => {
         const route = createMockRoute({
-          routeName: { usage: 'getUserById', original: 'GetUserById' },
+          routeName: { usage: 'getUserById', original: 'GetUserById', duplicate: false },
         });
         const routeConfig = createMockRouteConfig();
 
@@ -92,7 +107,7 @@ describe('tanstack-query-config', () => {
 
       it('should generate mutation hook name correctly', () => {
         const route = createMockRoute({
-          routeName: { usage: 'createUser', original: 'CreateUser' },
+          routeName: { usage: 'createUser', original: 'CreateUser', duplicate: false },
           request: { method: 'post', path: '/users' },
         });
         const routeConfig = createMockRouteConfig();
@@ -113,7 +128,7 @@ describe('tanstack-query-config', () => {
         expect(result.query.queryKeyConstanstName).toBe('GET_USERS');
       });
 
-      it('should generate query key constants function with path params', () => {
+      it('should generate query key rootKey and variable parts with path params', () => {
         const route = createMockRoute({
           request: { method: 'get', path: '/users/${userId}' },
         });
@@ -135,12 +150,14 @@ describe('tanstack-query-config', () => {
 
         const result = generateTanstackQueryConfig(route, routeConfig);
 
-        expect(result.query.queryKeyConstanstFunction).toBe(
-          "(userId: string)=>['users', userId]",
+        expect(result.query.queryKeyRootKey).toBe("['users', 'getUsers']");
+        expect(result.query.queryKeyVariablePartsExpression).toBe(
+          '...(userId != null ? [userId] : [])',
         );
+        expect(result.query.queryKeySignatures).toBe('userId: string');
       });
 
-      it('should generate query key constants function with literal path segments', () => {
+      it('should generate query key rootKey and variable parts with literal path segments', () => {
         const route = createMockRoute({
           request: { method: 'get', path: '/users/{userId}' },
         });
@@ -162,13 +179,14 @@ describe('tanstack-query-config', () => {
 
         const result = generateTanstackQueryConfig(route, routeConfig);
 
-        // {userId} is treated as a literal string since it doesn't match ${} pattern
-        expect(result.query.queryKeyConstanstFunction).toBe(
-          "(userId: string)=>['users', '{userId}']",
+        // {userId} is treated as literal; first segment is 'users'
+        expect(result.query.queryKeyRootKey).toBe("['users', 'getUsers']");
+        expect(result.query.queryKeyVariablePartsExpression).toBe(
+          '...(userId != null ? [userId] : [])',
         );
       });
 
-      it('should include query params in query key function', () => {
+      it('should include query params in query key variable parts', () => {
         const route = createMockRoute({
           request: {
             method: 'get',
@@ -179,6 +197,7 @@ describe('tanstack-query-config', () => {
         const routeConfig = createMockRouteConfig({
           request: {
             ...createMockRouteConfig().request,
+            query: { dtoName: 'GetUsersQueryParams', schema: { name: '' } },
             parameters: {
               signatures: {
                 required: ['params: GetUsersQueryParams'],
@@ -194,17 +213,19 @@ describe('tanstack-query-config', () => {
 
         const result = generateTanstackQueryConfig(route, routeConfig);
 
-        expect(result.query.queryKeyConstanstFunction).toBe(
-          "(params: GetUsersQueryParams)=>['users', params]",
+        expect(result.query.queryKeyRootKey).toBe("['users', 'getUsers']");
+        expect(result.query.queryKeyVariablePartsExpression).toBe(
+          '...(params ? [params] : [])',
         );
+        expect(result.query.queryKeySignatures).toBe('params: GetUsersQueryParams');
       });
 
-      it('should include payload in query key function', () => {
+      it('should include payload in query key variable parts', () => {
         const route = createMockRoute({
           request: {
             method: 'post',
             path: '/users/search',
-            payload: { type: 'SearchUsersPayload' },
+            payload: { name: null, type: 'SearchUsersPayload' },
           },
         });
         const routeConfig = createMockRouteConfig({
@@ -225,8 +246,9 @@ describe('tanstack-query-config', () => {
 
         const result = generateTanstackQueryConfig(route, routeConfig);
 
-        expect(result.query.queryKeyConstanstFunction).toBe(
-          "(payload: SearchUsersPayload)=>['users', 'search', payload]",
+        expect(result.query.queryKeyRootKey).toBe("['users', 'getUsers']");
+        expect(result.query.queryKeyVariablePartsExpression).toBe(
+          '...(payload ? [payload] : [])',
         );
       });
 
@@ -252,7 +274,7 @@ describe('tanstack-query-config', () => {
         expect(result.mutation.mutationKeyConstanstContent).toBe('[]');
       });
 
-      it('should return null query key array when path or method is missing', () => {
+      it('should leave query key rootKey and variable parts empty when path or method is missing', () => {
         const route = createMockRoute({
           request: { method: '', path: '' },
         });
@@ -260,7 +282,8 @@ describe('tanstack-query-config', () => {
 
         const result = generateTanstackQueryConfig(route, routeConfig);
 
-        expect(result.query.queryKeyConstanstFunction).toBe('()=>null');
+        expect(result.query.queryKeyRootKey).toBe('');
+        expect(result.query.queryKeyVariablePartsExpression).toBe('');
       });
     });
 
@@ -323,7 +346,7 @@ describe('tanstack-query-config', () => {
 
           const result = generateTanstackQueryConfig(route, routeConfig);
 
-          expect(result.query.extraOptionContent).toContain('staleTime: Infinity');
+          expect(result.query.extraOptionContent).toContain('staleTime: Number.POSITIVE_INFINITY');
         });
 
         it('should handle Infinity staleTime (mixed case)', () => {
@@ -337,7 +360,7 @@ describe('tanstack-query-config', () => {
 
           const result = generateTanstackQueryConfig(route, routeConfig);
 
-          expect(result.query.extraOptionContent).toContain('staleTime: Infinity');
+          expect(result.query.extraOptionContent).toContain('staleTime: Number.POSITIVE_INFINITY');
         });
 
         it('should handle Infinity gcTime', () => {
@@ -351,7 +374,7 @@ describe('tanstack-query-config', () => {
 
           const result = generateTanstackQueryConfig(route, routeConfig);
 
-          expect(result.query.extraOptionContent).toContain('gcTime: Infinity');
+          expect(result.query.extraOptionContent).toContain('gcTime: Number.POSITIVE_INFINITY');
         });
       });
 
