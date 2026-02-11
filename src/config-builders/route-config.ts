@@ -123,13 +123,7 @@ function withRoute(route: ParsedRoute) {
       });
     },
     setRequestFunctionOptionsTypeExpression: (config: RouteConfig): RouteConfig => {
-      const { request } = route;
-
-      return produce(config, (draft) => {
-        draft.request.options.typeExpr = request.headers
-          ? `Omit<Options, 'headers'> & { headers: ${config.request.headers.dtoName} }`
-          : 'Options';
-      });
+      return config;
     },
     setRequestRequiredSignatures: (config: RouteConfig): RouteConfig => {
       const inlineQueryParamsParameter =
@@ -152,8 +146,6 @@ function withRoute(route: ParsedRoute) {
       return produce(config, (draft) => {
         draft.request.parameters.signatures.all = compact([
           ...config.request.parameters.signatures.required,
-          'kyInstance?: KyInstance',
-          `options?: ${config.request.options.typeExpr}`,
         ]);
       });
     },
@@ -173,8 +165,6 @@ function withRoute(route: ParsedRoute) {
       return produce(config, (draft) => {
         draft.request.parameters.arguments.all = compact([
           ...config.request.parameters.arguments.required,
-          'kyInstance',
-          'options',
         ]);
       });
     },

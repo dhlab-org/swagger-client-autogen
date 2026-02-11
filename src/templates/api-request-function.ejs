@@ -1,5 +1,5 @@
 <%
-/** 
+/**
 * @description api 호출 함수 생성 템플릿 입니다. api.ejs에서 호출합니다.
 */
 
@@ -40,21 +40,28 @@ const hasRequestArgs = routeConfig.request.parameters.signatures.required.length
 
 */
 async <%~ request.functionName %>({<%~ requestFunctionArgumentsCode %>}: <%~ requestFunctionArgumentsTypeCode %><%~ hasRequestArgs ? '' : ' = {}' %>) {
-    const instance = kyInstance ?? this.instance;
     <%~ codegenConfig.createSchema && request.schema.expression ? `const validatedPayload = validateSchema(${request.schema.expression}, payload);` : '' %>
 
-    <%~ query ? `const urlSearchParams = createSearchParams(params);` : '' %>
+<% if (isStreamResponse) { %>
+    const response = await this.httpClient.requestStream({
+        method: '<%~ method.toUpperCase() %>',
+        url: `<%~ route.request.path.slice(1,) %>`,
+        <%~ query ? 'query: params,' : '' %>
+        <%~ payload ? `body: ${codegenConfig.createSchema ? 'validatedPayload' : 'payload'},` : '' %>
+    });
 
-    const response = await instance.<%~ method %><<%~ response.dtoName %>>(`<%~ route.request.path.slice(1,) %>`,{
-        <%~ [
-            query ? 'searchParams: urlSearchParams,' : '',
-            payload ? `json: ${codegenConfig.createSchema ? 'validatedPayload' : 'payload'},` : '',
-             '...options,'
-        ].filter(Boolean).join("\n") %>
-    })<%~ !isStreamResponse ? '.json()' : '' %>;
+    return new <%~ streamConfig.handlerName %>(response, callbacks);
+<% } else { %>
+    const response = await this.httpClient.request<<%~ response.dtoName %>>({
+        method: '<%~ method.toUpperCase() %>',
+        url: `<%~ route.request.path.slice(1,) %>`,
+        <%~ query ? 'query: params,' : '' %>
+        <%~ payload ? `body: ${codegenConfig.createSchema ? 'validatedPayload' : 'payload'},` : '' %>
+    });
 
     <%~ codegenConfig.createSchema && response.schema.expression ? `const validateResponse = validateSchema(${response.schema.expression}, response);` : '' %>
 
-    return <%~ isStreamResponse ? `new ${streamConfig.handlerName}(response, callbacks);` : codegenConfig.createSchema && response.schema.expression ? `validateResponse` : 'response' %>;
+    return <%~ codegenConfig.createSchema && response.schema.expression ? `validateResponse` : 'response' %>;
+<% } %>
 }
 

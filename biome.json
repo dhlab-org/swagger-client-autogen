@@ -4,9 +4,7 @@
     "ignoreUnknown": false,
     "includes": [
       "src/**/*",
-      "playwright/**/*",
-      "!playwright/__generated-stub__/**/*",
-      "!src/app/routes/routeTree.gen.ts"
+      "!src/templates/**/*"
     ]
   },
   "formatter": {

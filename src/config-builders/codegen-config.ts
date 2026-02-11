@@ -58,6 +58,12 @@ export const setupCodegenConfig = (config: InputCodegenConfig): CodegenConfig =>
             config.customOutput?.pathInfo?.globalMutationEffectType,
           ),
         },
+        httpClient: {
+          output: buildPathOutput(
+            'src/shared/api/__generated__/http-client.ts',
+            config.customOutput?.pathInfo?.httpClient,
+          ),
+        },
       },
     },
   };

@@ -1,0 +1,156 @@
+<%
+/**
+* @description HttpClient 인터페이스 및 어댑터 생성 템플릿 입니다.
+*/
+
+const { routes } = it;
+const firstRoute = routes.combined?.at(0);
+const codegenConfig = firstRoute?.routes?.at(0)?.codegenConfig;
+const httpClientType = codegenConfig?.httpClient;
+%>
+
+export interface HttpRequestConfig {
+  url: string;
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+  query?: Record<string, string | number | boolean | Array<string | number | boolean>>;
+  body?: unknown;
+  headers?: Record<string, string>;
+  signal?: AbortSignal;
+}
+
+export interface HttpClient {
+  request<T>(config: HttpRequestConfig): Promise<T>;
+  requestStream(config: HttpRequestConfig): Promise<Response>;
+}
+
+<% if (httpClientType === 'ky') { %>
+import type { KyInstance } from 'ky';
+
+export class KyHttpClient implements HttpClient {
+  constructor(private readonly instance: KyInstance) {}
+
+  async request<T>({ url, method, query, body, headers, signal }: HttpRequestConfig): Promise<T> {
+    const response = await this.instance(url, {
+      method,
+      searchParams: query
+        ? new URLSearchParams(
+            Object.entries(query).flatMap(([k, v]) =>
+              v != null
+                ? Array.isArray(v)
+                  ? v.map((item) => [k, String(item)])
+                  : [[k, String(v)]]
+                : [],
+            ),
+          )
+        : undefined,
+      json: body,
+      headers,
+      signal,
+    });
+
+    return response.json<T>();
+  }
+
+  async requestStream({ url, method, query, body, headers, signal }: HttpRequestConfig): Promise<Response> {
+    return this.instance(url, {
+      method,
+      searchParams: query
+        ? new URLSearchParams(
+            Object.entries(query).flatMap(([k, v]) =>
+              v != null
+                ? Array.isArray(v)
+                  ? v.map((item) => [k, String(item)])
+                  : [[k, String(v)]]
+                : [],
+            ),
+          )
+        : undefined,
+      json: body,
+      headers,
+      signal,
+    }) as unknown as Promise<Response>;
+  }
+}
+<% } else if (httpClientType === 'axios') { %>
+import type { AxiosInstance } from 'axios';
+
+export class AxiosHttpClient implements HttpClient {
+  constructor(private readonly instance: AxiosInstance) {}
+
+  async request<T>({ url, method, query, body, headers, signal }: HttpRequestConfig): Promise<T> {
+    const { data } = await this.instance.request<T>({
+      url,
+      method,
+      params: query,
+      data: body,
+      headers,
+      signal,
+    });
+
+    return data;
+  }
+
+  async requestStream({ url, method, query, body, headers, signal }: HttpRequestConfig): Promise<Response> {
+    const { data } = await this.instance.request({
+      url,
+      method,
+      params: query,
+      data: body,
+      headers,
+      signal,
+      responseType: 'stream',
+      adapter: 'fetch',
+    });
+
+    return data as unknown as Response;
+  }
+}
+<% } else if (httpClientType === 'fetch') { %>
+export class FetchHttpClient implements HttpClient {
+  constructor(private readonly baseUrl: string = '') {}
+
+  async request<T>({ url, method, query, body, headers, signal }: HttpRequestConfig): Promise<T> {
+    const queryString = query
+      ? `?${new URLSearchParams(
+          Object.entries(query).flatMap(([k, v]) =>
+            v != null
+              ? Array.isArray(v)
+                ? v.map((item) => [k, String(item)])
+                : [[k, String(v)]]
+              : [],
+          ),
+        ).toString()}`
+      : '';
+
+    const response = await fetch(`${this.baseUrl}/${url}${queryString}`, {
+      method,
+      body: body ? JSON.stringify(body) : undefined,
+      headers: { 'Content-Type': 'application/json', ...headers },
+      signal,
+    });
+
+    return response.json() as Promise<T>;
+  }
+
+  async requestStream({ url, method, query, body, headers, signal }: HttpRequestConfig): Promise<Response> {
+    const queryString = query
+      ? `?${new URLSearchParams(
+          Object.entries(query).flatMap(([k, v]) =>
+            v != null
+              ? Array.isArray(v)
+                ? v.map((item) => [k, String(item)])
+                : [[k, String(v)]]
+              : [],
+          ),
+        ).toString()}`
+      : '';
+
+    return fetch(`${this.baseUrl}/${url}${queryString}`, {
+      method,
+      body: body ? JSON.stringify(body) : undefined,
+      headers: { 'Content-Type': 'application/json', ...headers },
+      signal,
+    });
+  }
+}
+<% } %>

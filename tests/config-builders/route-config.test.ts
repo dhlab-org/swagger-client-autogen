@@ -174,7 +174,7 @@ describe('route-config', () => {
         expect(config.request.headers.schema.name).toBe('GetUsersHeadersSchema');
       });
 
-      it('should modify options type expression when headers exist', () => {
+      it('should have empty options typeExpr (HttpClient handles options)', () => {
         const route = createMockRoute({
           routeName: { usage: 'getUsers', original: 'GetUsers' },
           request: {
@@ -189,17 +189,7 @@ describe('route-config', () => {
 
         const config = generateConfig(route);
 
-        expect(config.request.options.typeExpr).toBe(
-          "Omit<Options, 'headers'> & { headers: GetUsersHeaders }",
-        );
-      });
-
-      it('should use default Options type when no headers', () => {
-        const route = createMockRoute();
-
-        const config = generateConfig(route);
-
-        expect(config.request.options.typeExpr).toBe('Options');
+        expect(config.request.options.typeExpr).toBe('');
       });
     });
 
@@ -263,15 +253,15 @@ describe('route-config', () => {
         expect(config.request.parameters.arguments.required).toContain('params');
       });
 
-      it('should add kyInstance and options to all signatures', () => {
+      it('should not include kyInstance or options in all signatures (HttpClient pattern)', () => {
         const route = createMockRoute();
 
         const config = generateConfig(route);
 
-        expect(config.request.parameters.signatures.all).toContain('kyInstance?: KyInstance');
-        expect(config.request.parameters.signatures.all).toContain('options?: Options');
-        expect(config.request.parameters.arguments.all).toContain('kyInstance');
-        expect(config.request.parameters.arguments.all).toContain('options');
+        expect(config.request.parameters.signatures.all).not.toContain('kyInstance?: KyInstance');
+        expect(config.request.parameters.signatures.all).not.toContain('options?: Options');
+        expect(config.request.parameters.arguments.all).not.toContain('kyInstance');
+        expect(config.request.parameters.arguments.all).not.toContain('options');
       });
     });
 

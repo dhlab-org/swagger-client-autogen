@@ -384,6 +384,33 @@ npx swagger-client-autogen fetch --config swagger/config.ts
 └─────────┴──────────────┴──────────┴─────────────────────────────┘
 ```
 
+#### `setQueryDefaults`를 활용한 직접 설정
+
+x-property 없이도, 생성된 `queryKeys`를 활용하여 TanStack Query의 `setQueryDefaults`로 직접 캐싱 전략을 설정할 수 있습니다.
+
+```typescript
+import { queryClient } from '@/app/provider/tanstack-query';
+import { chatsQueryKeys } from '@/entities/chats/api/queries';
+import { usersQueryKeys } from '@/entities/users/api/queries';
+
+// 특정 엔드포인트의 staleTime/gcTime 설정
+queryClient.setQueryDefaults(chatsQueryKeys.getChatsByChatId.rootKey, {
+  staleTime: Infinity,
+});
+
+queryClient.setQueryDefaults(usersQueryKeys.getUsersMe.rootKey, {
+  staleTime: Infinity,
+  gcTime: Infinity,
+});
+```
+
+> [!TIP]
+> **x-property와 setQueryDefaults 중 어떤 걸 써야 하나요?**
+> - **x-property**: API 명세에 캐싱 전략을 선언적으로 관리하고 싶을 때. 생성된 코드에 자동 포함되어 Zero-config로 사용 가능
+> - **setQueryDefaults**: 같은 API를 화면/컨텍스트별로 다르게 설정하거나, 런타임에 동적으로 변경해야 할 때
+>
+> 두 방식은 함께 사용할 수 있으며, `setQueryDefaults`는 `queryOptions` 내의 값보다 낮은 우선순위를 가집니다.
+
 ## 🎯 생성되는 코드
 
 ### API 클라이언트 클래스

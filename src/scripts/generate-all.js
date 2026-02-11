@@ -76,6 +76,14 @@ const generateApiFunctionCode = async (config) => {
       { name: 'enumDataContract', fileName: 'enum-data-contract' },
       { name: 'httpClient', fileName: 'http-client' },
     ],
+    extraTemplates: [
+      {
+        name: 'http-client-gen',
+        path: projectTemplate
+          ? path.resolve(process.cwd(), projectTemplate, 'http-client.ejs')
+          : path.resolve(__dirname, '../templates/http-client.ejs'),
+      },
+    ],
     hooks: {
       onCreateRouteName: (routeNameInfo, rawRouteInfo) => {
         return {
@@ -103,6 +111,11 @@ const generateApiFunctionCode = async (config) => {
 
   for (const { fileName, fileContent } of apiFunctionCode.files) {
     if (fileName === 'http-client') continue;
+
+    if (fileName === 'http-client-gen') {
+      await writeFileToPath(config.customOutput.pathInfo.httpClient.output.absolute, fileContent);
+      continue;
+    }
 
     const { pathInfo } = config.customOutput;
 

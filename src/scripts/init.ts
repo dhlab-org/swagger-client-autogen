@@ -2,12 +2,15 @@ import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
+import type { HttpClientType } from '../types/http-client';
 import { writeFileToPath } from '../utils/file';
 
 type InitConfig = Pick<
   import('../types/codegen-config').InputCodegenConfig,
   'uri' | 'createSchema' | 'username' | 'password'
->;
+> & {
+  httpClient?: HttpClientType;
+};
 
 // 패키지 매니저 감지
 function detectPackageManager(): string {
@@ -34,9 +37,17 @@ export const config: Partial<InputCodegenConfig> = {
   `
       : ''
   }
-  
+
   // 스키마 생성 여부
   createSchema: ${config.createSchema},
+${
+  config.httpClient
+    ? `
+  // HTTP 클라이언트 (어댑터 코드가 자동 생성됩니다)
+  httpClient: '${config.httpClient}',
+`
+    : ''
+}
 
   // 출력 설정 (필요에 따라 주석 해제하여 사용)
   /*
@@ -137,6 +148,22 @@ ${pc.yellow('개발 서버:')} http://localhost:3000/api-docs`,
     process.exit(0);
   }
 
+  const httpClient = await p.select({
+    message: 'HTTP 클라이언트를 선택하세요 (어댑터 코드가 자동 생성됩니다)',
+    options: [
+      { value: 'ky', label: 'ky' },
+      { value: 'axios', label: 'axios' },
+      { value: 'fetch', label: 'fetch (네이티브)' },
+      { value: 'none', label: '선택 안함 (인터페이스만 생성)' },
+    ],
+    initialValue: 'ky' as string,
+  });
+
+  if (p.isCancel(httpClient)) {
+    p.cancel('초기화가 취소되었습니다.');
+    process.exit(0);
+  }
+
   const configFileName = await p.text({
     message: 'Config 파일명을 입력하세요',
     placeholder: 'swagger/config.ts',
@@ -158,6 +185,7 @@ ${pc.yellow('개발 서버:')} http://localhost:3000/api-docs`,
       createSchema,
       username,
       password,
+      ...(httpClient !== 'none' && { httpClient: httpClient as HttpClientType }),
     };
 
     const configContent = generateConfigTemplate(config);

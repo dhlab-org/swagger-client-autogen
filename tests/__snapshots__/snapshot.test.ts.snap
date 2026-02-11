@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`snapshot tests > API code generation > 'ai-chat' - api, apiInstance, dto > ai-chat/api/auth 1`] = `
-"import type { KyInstance, Options } from "ky";
+"import type { HttpClient } from "@/shared/api/__generated__/http-client";
 
 import type {
   AuthResponseDto,
@@ -18,10 +18,10 @@ import {
 import { validateSchema } from "@/shared/api/__generated__/utils";
 
 export class AuthApi {
-  private readonly instance: KyInstance;
+  private readonly httpClient: HttpClient;
 
-  constructor(instance: KyInstance) {
-    this.instance = instance;
+  constructor(httpClient: HttpClient) {
+    this.httpClient = httpClient;
   }
 
   /**
@@ -31,18 +31,13 @@ export class AuthApi {
    */
   async postAuthSignup({
     payload,
-    kyInstance,
-    options,
   }: TAuthApiRequestParameters["postAuthSignup"]) {
-    const instance = kyInstance ?? this.instance;
     const validatedPayload = validateSchema(signUpRequestDtoSchema, payload);
-
-    const response = await instance
-      .post<AuthResponseDto>(\`auth/signup\`, {
-        json: validatedPayload,
-        ...options,
-      })
-      .json();
+    const response = await this.httpClient.request<AuthResponseDto>({
+      method: "POST",
+      url: \`auth/signup\`,
+      body: validatedPayload,
+    });
 
     const validateResponse = validateSchema(authResponseDtoSchema, response);
     return validateResponse;
@@ -53,20 +48,13 @@ export class AuthApi {
    * @summary Login
    * @request POST:/auth/login
    */
-  async postAuthLogin({
-    payload,
-    kyInstance,
-    options,
-  }: TAuthApiRequestParameters["postAuthLogin"]) {
-    const instance = kyInstance ?? this.instance;
+  async postAuthLogin({ payload }: TAuthApiRequestParameters["postAuthLogin"]) {
     const validatedPayload = validateSchema(loginRequestDtoSchema, payload);
-
-    const response = await instance
-      .post<AuthResponseDto>(\`auth/login\`, {
-        json: validatedPayload,
-        ...options,
-      })
-      .json();
+    const response = await this.httpClient.request<AuthResponseDto>({
+      method: "POST",
+      url: \`auth/login\`,
+      body: validatedPayload,
+    });
 
     const validateResponse = validateSchema(authResponseDtoSchema, response);
     return validateResponse;
@@ -77,17 +65,11 @@ export class AuthApi {
    * @summary Logout
    * @request POST:/auth/logout
    */
-  async postAuthLogout({
-    kyInstance,
-    options,
-  }: TAuthApiRequestParameters["postAuthLogout"] = {}) {
-    const instance = kyInstance ?? this.instance;
-
-    const response = await instance
-      .post<void>(\`auth/logout\`, {
-        ...options,
-      })
-      .json();
+  async postAuthLogout({}: TAuthApiRequestParameters["postAuthLogout"] = {}) {
+    const response = await this.httpClient.request<void>({
+      method: "POST",
+      url: \`auth/logout\`,
+    });
 
     return response;
   }
@@ -99,21 +81,16 @@ export class AuthApi {
    */
   async postAuthRefresh({
     payload,
-    kyInstance,
-    options,
   }: TAuthApiRequestParameters["postAuthRefresh"]) {
-    const instance = kyInstance ?? this.instance;
     const validatedPayload = validateSchema(
       refreshTokenRequestDtoSchema,
       payload,
     );
-
-    const response = await instance
-      .post<AuthResponseDto>(\`auth/refresh\`, {
-        json: validatedPayload,
-        ...options,
-      })
-      .json();
+    const response = await this.httpClient.request<AuthResponseDto>({
+      method: "POST",
+      url: \`auth/refresh\`,
+      body: validatedPayload,
+    });
 
     const validateResponse = validateSchema(authResponseDtoSchema, response);
     return validateResponse;
@@ -123,29 +100,20 @@ export class AuthApi {
 export type TAuthApiRequestParameters = {
   postAuthSignup: {
     payload: SignUpRequestDto;
-    kyInstance?: KyInstance;
-    options?: Options;
   };
   postAuthLogin: {
     payload: LoginRequestDto;
-    kyInstance?: KyInstance;
-    options?: Options;
   };
-  postAuthLogout: {
-    kyInstance?: KyInstance;
-    options?: Options;
-  };
+  postAuthLogout: {};
   postAuthRefresh: {
     payload: RefreshTokenRequestDto;
-    kyInstance?: KyInstance;
-    options?: Options;
   };
 };
 "
 `;
 
 exports[`snapshot tests > API code generation > 'ai-chat' - api, apiInstance, dto > ai-chat/api/chats 1`] = `
-"import type { KyInstance, Options } from "ky";
+"import type { HttpClient } from "@/shared/api/__generated__/http-client";
 
 import type {
   ChatCreateRequestDto,
@@ -168,20 +136,17 @@ import {
   messageListResponseDtoSchema,
   streamStatusResponseDtoSchema,
 } from "@/shared/api/__generated__/schema";
-import {
-  createSearchParams,
-  validateSchema,
-} from "@/shared/api/__generated__/utils";
+import { validateSchema } from "@/shared/api/__generated__/utils";
 import {
   ChatsByChatIdMessagesStreamHandler,
   type ChatsByChatIdMessagesStreamCallbacks,
 } from "../../api/stream-handlers";
 
 export class ChatsApi {
-  private readonly instance: KyInstance;
+  private readonly httpClient: HttpClient;
 
-  constructor(instance: KyInstance) {
-    this.instance = instance;
+  constructor(httpClient: HttpClient) {
+    this.httpClient = httpClient;
   }
 
   /**
@@ -189,20 +154,12 @@ export class ChatsApi {
    * @summary Get Chats
    * @request GET:/chats
    */
-  async getChats({
-    params,
-    kyInstance,
-    options,
-  }: TChatsApiRequestParameters["getChats"]) {
-    const instance = kyInstance ?? this.instance;
-
-    const urlSearchParams = createSearchParams(params);
-    const response = await instance
-      .get<ChatListResponseDto>(\`chats\`, {
-        searchParams: urlSearchParams,
-        ...options,
-      })
-      .json();
+  async getChats({ params }: TChatsApiRequestParameters["getChats"]) {
+    const response = await this.httpClient.request<ChatListResponseDto>({
+      method: "GET",
+      url: \`chats\`,
+      query: params,
+    });
 
     const validateResponse = validateSchema(
       chatListResponseDtoSchema,
@@ -216,23 +173,16 @@ export class ChatsApi {
    * @summary Create Chat
    * @request POST:/chats
    */
-  async postChats({
-    payload,
-    kyInstance,
-    options,
-  }: TChatsApiRequestParameters["postChats"]) {
-    const instance = kyInstance ?? this.instance;
+  async postChats({ payload }: TChatsApiRequestParameters["postChats"]) {
     const validatedPayload = validateSchema(
       chatCreateRequestDtoSchema,
       payload,
     );
-
-    const response = await instance
-      .post<ChatResponseDto>(\`chats\`, {
-        json: validatedPayload,
-        ...options,
-      })
-      .json();
+    const response = await this.httpClient.request<ChatResponseDto>({
+      method: "POST",
+      url: \`chats\`,
+      body: validatedPayload,
+    });
 
     const validateResponse = validateSchema(chatResponseDtoSchema, response);
     return validateResponse;
@@ -245,16 +195,11 @@ export class ChatsApi {
    */
   async getChatsByChatId({
     chatId,
-    kyInstance,
-    options,
   }: TChatsApiRequestParameters["getChatsByChatId"]) {
-    const instance = kyInstance ?? this.instance;
-
-    const response = await instance
-      .get<ChatDetailResponseDto>(\`chats/\${chatId}\`, {
-        ...options,
-      })
-      .json();
+    const response = await this.httpClient.request<ChatDetailResponseDto>({
+      method: "GET",
+      url: \`chats/\${chatId}\`,
+    });
 
     const validateResponse = validateSchema(
       chatDetailResponseDtoSchema,
@@ -271,21 +216,16 @@ export class ChatsApi {
   async patchChatsByChatId({
     chatId,
     payload,
-    kyInstance,
-    options,
   }: TChatsApiRequestParameters["patchChatsByChatId"]) {
-    const instance = kyInstance ?? this.instance;
     const validatedPayload = validateSchema(
       chatUpdateRequestDtoSchema,
       payload,
     );
-
-    const response = await instance
-      .patch<ChatResponseDto>(\`chats/\${chatId}\`, {
-        json: validatedPayload,
-        ...options,
-      })
-      .json();
+    const response = await this.httpClient.request<ChatResponseDto>({
+      method: "PATCH",
+      url: \`chats/\${chatId}\`,
+      body: validatedPayload,
+    });
 
     const validateResponse = validateSchema(chatResponseDtoSchema, response);
     return validateResponse;
@@ -298,16 +238,11 @@ export class ChatsApi {
    */
   async deleteChatsByChatId({
     chatId,
-    kyInstance,
-    options,
   }: TChatsApiRequestParameters["deleteChatsByChatId"]) {
-    const instance = kyInstance ?? this.instance;
-
-    const response = await instance
-      .delete<void>(\`chats/\${chatId}\`, {
-        ...options,
-      })
-      .json();
+    const response = await this.httpClient.request<void>({
+      method: "DELETE",
+      url: \`chats/\${chatId}\`,
+    });
 
     return response;
   }
@@ -319,16 +254,11 @@ export class ChatsApi {
    */
   async getChatsByChatIdMessages({
     chatId,
-    kyInstance,
-    options,
   }: TChatsApiRequestParameters["getChatsByChatIdMessages"]) {
-    const instance = kyInstance ?? this.instance;
-
-    const response = await instance
-      .get<MessageListResponseDto>(\`chats/\${chatId}/messages\`, {
-        ...options,
-      })
-      .json();
+    const response = await this.httpClient.request<MessageListResponseDto>({
+      method: "GET",
+      url: \`chats/\${chatId}/messages\`,
+    });
 
     const validateResponse = validateSchema(
       messageListResponseDtoSchema,
@@ -351,21 +281,18 @@ export class ChatsApi {
   async postChatsByChatIdMessages({
     chatId,
     payload,
-    kyInstance,
-    options,
     callbacks,
   }: TChatsApiRequestParameters["postChatsByChatIdMessages"] & {
     callbacks: ChatsByChatIdMessagesStreamCallbacks;
   }) {
-    const instance = kyInstance ?? this.instance;
     const validatedPayload = validateSchema(
       messageCreateRequestDtoSchema,
       payload,
     );
-
-    const response = await instance.post<string>(\`chats/\${chatId}/messages\`, {
-      json: validatedPayload,
-      ...options,
+    const response = await this.httpClient.requestStream({
+      method: "POST",
+      url: \`chats/\${chatId}/messages\`,
+      body: validatedPayload,
     });
 
     return new ChatsByChatIdMessagesStreamHandler(response, callbacks);
@@ -378,16 +305,11 @@ export class ChatsApi {
    */
   async getChatsByChatIdStreamStatus({
     chatId,
-    kyInstance,
-    options,
   }: TChatsApiRequestParameters["getChatsByChatIdStreamStatus"]) {
-    const instance = kyInstance ?? this.instance;
-
-    const response = await instance
-      .get<StreamStatusResponseDto>(\`chats/\${chatId}/stream-status\`, {
-        ...options,
-      })
-      .json();
+    const response = await this.httpClient.request<StreamStatusResponseDto>({
+      method: "GET",
+      url: \`chats/\${chatId}/stream-status\`,
+    });
 
     const validateResponse = validateSchema(
       streamStatusResponseDtoSchema,
@@ -400,52 +322,36 @@ export class ChatsApi {
 export type TChatsApiRequestParameters = {
   getChats: {
     params?: GetChatsQueryParams;
-    kyInstance?: KyInstance;
-    options?: Options;
   };
   postChats: {
     payload: ChatCreateRequestDto;
-    kyInstance?: KyInstance;
-    options?: Options;
   };
   getChatsByChatId: {
     chatId: number;
-    kyInstance?: KyInstance;
-    options?: Options;
   };
   patchChatsByChatId: {
     chatId: number;
     payload: ChatUpdateRequestDto;
-    kyInstance?: KyInstance;
-    options?: Options;
   };
   deleteChatsByChatId: {
     chatId: number;
-    kyInstance?: KyInstance;
-    options?: Options;
   };
   getChatsByChatIdMessages: {
     chatId: number;
-    kyInstance?: KyInstance;
-    options?: Options;
   };
   postChatsByChatIdMessages: {
     chatId: number;
     payload: MessageCreateRequestDto;
-    kyInstance?: KyInstance;
-    options?: Options;
   };
   getChatsByChatIdStreamStatus: {
     chatId: number;
-    kyInstance?: KyInstance;
-    options?: Options;
   };
 };
 "
 `;
 
 exports[`snapshot tests > API code generation > 'ai-chat' - api, apiInstance, dto > ai-chat/api/users 1`] = `
-"import type { KyInstance, Options } from "ky";
+"import type { HttpClient } from "@/shared/api/__generated__/http-client";
 
 import type {
   UserResponseDto,
@@ -458,10 +364,10 @@ import {
 import { validateSchema } from "@/shared/api/__generated__/utils";
 
 export class UsersApi {
-  private readonly instance: KyInstance;
+  private readonly httpClient: HttpClient;
 
-  constructor(instance: KyInstance) {
-    this.instance = instance;
+  constructor(httpClient: HttpClient) {
+    this.httpClient = httpClient;
   }
 
   /**
@@ -469,17 +375,11 @@ export class UsersApi {
    * @summary Get Current User
    * @request GET:/users/me
    */
-  async getUsersMe({
-    kyInstance,
-    options,
-  }: TUsersApiRequestParameters["getUsersMe"] = {}) {
-    const instance = kyInstance ?? this.instance;
-
-    const response = await instance
-      .get<UserResponseDto>(\`users/me\`, {
-        ...options,
-      })
-      .json();
+  async getUsersMe({}: TUsersApiRequestParameters["getUsersMe"] = {}) {
+    const response = await this.httpClient.request<UserResponseDto>({
+      method: "GET",
+      url: \`users/me\`,
+    });
 
     const validateResponse = validateSchema(userResponseDtoSchema, response);
     return validateResponse;
@@ -490,23 +390,16 @@ export class UsersApi {
    * @summary Update Current User
    * @request PATCH:/users/me
    */
-  async patchUsersMe({
-    payload,
-    kyInstance,
-    options,
-  }: TUsersApiRequestParameters["patchUsersMe"]) {
-    const instance = kyInstance ?? this.instance;
+  async patchUsersMe({ payload }: TUsersApiRequestParameters["patchUsersMe"]) {
     const validatedPayload = validateSchema(
       userUpdateRequestDtoSchema,
       payload,
     );
-
-    const response = await instance
-      .patch<UserResponseDto>(\`users/me\`, {
-        json: validatedPayload,
-        ...options,
-      })
-      .json();
+    const response = await this.httpClient.request<UserResponseDto>({
+      method: "PATCH",
+      url: \`users/me\`,
+      body: validatedPayload,
+    });
 
     const validateResponse = validateSchema(userResponseDtoSchema, response);
     return validateResponse;
@@ -517,68 +410,54 @@ export class UsersApi {
    * @summary Delete Current User
    * @request DELETE:/users/me
    */
-  async deleteUsersMe({
-    kyInstance,
-    options,
-  }: TUsersApiRequestParameters["deleteUsersMe"] = {}) {
-    const instance = kyInstance ?? this.instance;
-
-    const response = await instance
-      .delete<void>(\`users/me\`, {
-        ...options,
-      })
-      .json();
+  async deleteUsersMe({}: TUsersApiRequestParameters["deleteUsersMe"] = {}) {
+    const response = await this.httpClient.request<void>({
+      method: "DELETE",
+      url: \`users/me\`,
+    });
 
     return response;
   }
 }
 
 export type TUsersApiRequestParameters = {
-  getUsersMe: {
-    kyInstance?: KyInstance;
-    options?: Options;
-  };
+  getUsersMe: {};
   patchUsersMe: {
     payload: UserUpdateRequestDto;
-    kyInstance?: KyInstance;
-    options?: Options;
   };
-  deleteUsersMe: {
-    kyInstance?: KyInstance;
-    options?: Options;
-  };
+  deleteUsersMe: {};
 };
 "
 `;
 
 exports[`snapshot tests > API code generation > 'ai-chat' - api, apiInstance, dto > ai-chat/api-instance/auth 1`] = `
-"import { kyInstance } from "@/shared/api/instance";
+"import { httpClient } from "@/shared/api/instance";
 
 import { AuthApi } from "./index";
 
-const authApi = new AuthApi(kyInstance);
+const authApi = new AuthApi(httpClient);
 
 export { authApi };
 "
 `;
 
 exports[`snapshot tests > API code generation > 'ai-chat' - api, apiInstance, dto > ai-chat/api-instance/chats 1`] = `
-"import { kyInstance } from "@/shared/api/instance";
+"import { httpClient } from "@/shared/api/instance";
 
 import { ChatsApi } from "./index";
 
-const chatsApi = new ChatsApi(kyInstance);
+const chatsApi = new ChatsApi(httpClient);
 
 export { chatsApi };
 "
 `;
 
 exports[`snapshot tests > API code generation > 'ai-chat' - api, apiInstance, dto > ai-chat/api-instance/users 1`] = `
-"import { kyInstance } from "@/shared/api/instance";
+"import { httpClient } from "@/shared/api/instance";
 
 import { UsersApi } from "./index";
 
-const usersApi = new UsersApi(kyInstance);
+const usersApi = new UsersApi(httpClient);
 
 export { usersApi };
 "
@@ -695,7 +574,7 @@ export type GetChatsQueryParams = {
 `;
 
 exports[`snapshot tests > API code generation > 'petstore' - api, apiInstance, dto > petstore/api/pets 1`] = `
-"import type { KyInstance, Options } from "ky";
+"import type { HttpClient } from "@/shared/api/__generated__/http-client";
 
 import type {
   CreatePetRequestDto,
@@ -710,16 +589,13 @@ import {
   petListResponseDtoSchema,
   updatePetRequestDtoSchema,
 } from "@/shared/api/__generated__/schema";
-import {
-  createSearchParams,
-  validateSchema,
-} from "@/shared/api/__generated__/utils";
+import { validateSchema } from "@/shared/api/__generated__/utils";
 
 export class PetsApi {
-  private readonly instance: KyInstance;
+  private readonly httpClient: HttpClient;
 
-  constructor(instance: KyInstance) {
-    this.instance = instance;
+  constructor(httpClient: HttpClient) {
+    this.httpClient = httpClient;
   }
 
   /**
@@ -727,20 +603,12 @@ export class PetsApi {
    * @summary List all pets
    * @request GET:/pets
    */
-  async getPets({
-    params,
-    kyInstance,
-    options,
-  }: TPetsApiRequestParameters["getPets"]) {
-    const instance = kyInstance ?? this.instance;
-
-    const urlSearchParams = createSearchParams(params);
-    const response = await instance
-      .get<PetListResponseDto>(\`pets\`, {
-        searchParams: urlSearchParams,
-        ...options,
-      })
-      .json();
+  async getPets({ params }: TPetsApiRequestParameters["getPets"]) {
+    const response = await this.httpClient.request<PetListResponseDto>({
+      method: "GET",
+      url: \`pets\`,
+      query: params,
+    });
 
     const validateResponse = validateSchema(petListResponseDtoSchema, response);
     return validateResponse;
@@ -751,20 +619,13 @@ export class PetsApi {
    * @summary Create a pet
    * @request POST:/pets
    */
-  async postPets({
-    payload,
-    kyInstance,
-    options,
-  }: TPetsApiRequestParameters["postPets"]) {
-    const instance = kyInstance ?? this.instance;
+  async postPets({ payload }: TPetsApiRequestParameters["postPets"]) {
     const validatedPayload = validateSchema(createPetRequestDtoSchema, payload);
-
-    const response = await instance
-      .post<PetDto>(\`pets\`, {
-        json: validatedPayload,
-        ...options,
-      })
-      .json();
+    const response = await this.httpClient.request<PetDto>({
+      method: "POST",
+      url: \`pets\`,
+      body: validatedPayload,
+    });
 
     const validateResponse = validateSchema(petDtoSchema, response);
     return validateResponse;
@@ -775,18 +636,11 @@ export class PetsApi {
    * @summary Get a pet by ID
    * @request GET:/pets/{petId}
    */
-  async getPetsByPetId({
-    petId,
-    kyInstance,
-    options,
-  }: TPetsApiRequestParameters["getPetsByPetId"]) {
-    const instance = kyInstance ?? this.instance;
-
-    const response = await instance
-      .get<PetDto>(\`pets/\${petId}\`, {
-        ...options,
-      })
-      .json();
+  async getPetsByPetId({ petId }: TPetsApiRequestParameters["getPetsByPetId"]) {
+    const response = await this.httpClient.request<PetDto>({
+      method: "GET",
+      url: \`pets/\${petId}\`,
+    });
 
     const validateResponse = validateSchema(petDtoSchema, response);
     return validateResponse;
@@ -800,18 +654,13 @@ export class PetsApi {
   async putPetsByPetId({
     petId,
     payload,
-    kyInstance,
-    options,
   }: TPetsApiRequestParameters["putPetsByPetId"]) {
-    const instance = kyInstance ?? this.instance;
     const validatedPayload = validateSchema(updatePetRequestDtoSchema, payload);
-
-    const response = await instance
-      .put<PetDto>(\`pets/\${petId}\`, {
-        json: validatedPayload,
-        ...options,
-      })
-      .json();
+    const response = await this.httpClient.request<PetDto>({
+      method: "PUT",
+      url: \`pets/\${petId}\`,
+      body: validatedPayload,
+    });
 
     const validateResponse = validateSchema(petDtoSchema, response);
     return validateResponse;
@@ -824,16 +673,11 @@ export class PetsApi {
    */
   async deletePetsByPetId({
     petId,
-    kyInstance,
-    options,
   }: TPetsApiRequestParameters["deletePetsByPetId"]) {
-    const instance = kyInstance ?? this.instance;
-
-    const response = await instance
-      .delete<void>(\`pets/\${petId}\`, {
-        ...options,
-      })
-      .json();
+    const response = await this.httpClient.request<void>({
+      method: "DELETE",
+      url: \`pets/\${petId}\`,
+    });
 
     return response;
   }
@@ -842,47 +686,38 @@ export class PetsApi {
 export type TPetsApiRequestParameters = {
   getPets: {
     params?: ListPetsQueryParams;
-    kyInstance?: KyInstance;
-    options?: Options;
   };
   postPets: {
     payload: CreatePetRequestDto;
-    kyInstance?: KyInstance;
-    options?: Options;
   };
   getPetsByPetId: {
     petId: number;
-    kyInstance?: KyInstance;
-    options?: Options;
   };
   putPetsByPetId: {
     petId: number;
     payload: UpdatePetRequestDto;
-    kyInstance?: KyInstance;
-    options?: Options;
   };
   deletePetsByPetId: {
     petId: number;
-    kyInstance?: KyInstance;
-    options?: Options;
   };
 };
 "
 `;
 
 exports[`snapshot tests > API code generation > 'petstore' - api, apiInstance, dto > petstore/api/users 1`] = `
-"import type { KyInstance, Options } from "ky";
-import { z } from "zod";
+"import { z } from "zod";
+
+import type { HttpClient } from "@/shared/api/__generated__/http-client";
 
 import type { UserDto } from "@/shared/api/__generated__/dto";
 import { userDtoSchema } from "@/shared/api/__generated__/schema";
 import { validateSchema } from "@/shared/api/__generated__/utils";
 
 export class UsersApi {
-  private readonly instance: KyInstance;
+  private readonly httpClient: HttpClient;
 
-  constructor(instance: KyInstance) {
-    this.instance = instance;
+  constructor(httpClient: HttpClient) {
+    this.httpClient = httpClient;
   }
 
   /**
@@ -890,17 +725,11 @@ export class UsersApi {
    * @summary List users
    * @request GET:/users
    */
-  async getUsers({
-    kyInstance,
-    options,
-  }: TUsersApiRequestParameters["getUsers"] = {}) {
-    const instance = kyInstance ?? this.instance;
-
-    const response = await instance
-      .get<UserDto[]>(\`users\`, {
-        ...options,
-      })
-      .json();
+  async getUsers({}: TUsersApiRequestParameters["getUsers"] = {}) {
+    const response = await this.httpClient.request<UserDto[]>({
+      method: "GET",
+      url: \`users\`,
+    });
 
     const validateResponse = validateSchema(z.array(userDtoSchema), response);
     return validateResponse;
@@ -913,16 +742,11 @@ export class UsersApi {
    */
   async getUsersByUserId({
     userId,
-    kyInstance,
-    options,
   }: TUsersApiRequestParameters["getUsersByUserId"]) {
-    const instance = kyInstance ?? this.instance;
-
-    const response = await instance
-      .get<UserDto>(\`users/\${userId}\`, {
-        ...options,
-      })
-      .json();
+    const response = await this.httpClient.request<UserDto>({
+      method: "GET",
+      url: \`users/\${userId}\`,
+    });
 
     const validateResponse = validateSchema(userDtoSchema, response);
     return validateResponse;
@@ -930,36 +754,31 @@ export class UsersApi {
 }
 
 export type TUsersApiRequestParameters = {
-  getUsers: {
-    kyInstance?: KyInstance;
-    options?: Options;
-  };
+  getUsers: {};
   getUsersByUserId: {
     userId: string;
-    kyInstance?: KyInstance;
-    options?: Options;
   };
 };
 "
 `;
 
 exports[`snapshot tests > API code generation > 'petstore' - api, apiInstance, dto > petstore/api-instance/pets 1`] = `
-"import { kyInstance } from "@/shared/api/instance";
+"import { httpClient } from "@/shared/api/instance";
 
 import { PetsApi } from "./index";
 
-const petsApi = new PetsApi(kyInstance);
+const petsApi = new PetsApi(httpClient);
 
 export { petsApi };
 "
 `;
 
 exports[`snapshot tests > API code generation > 'petstore' - api, apiInstance, dto > petstore/api-instance/users 1`] = `
-"import { kyInstance } from "@/shared/api/instance";
+"import { httpClient } from "@/shared/api/instance";
 
 import { UsersApi } from "./index";
 
-const usersApi = new UsersApi(kyInstance);
+const usersApi = new UsersApi(httpClient);
 
 export { usersApi };
 "
@@ -1312,12 +1131,8 @@ export const AUTH_MUTATION_KEY = {
 
 const mutations = {
   postAuthSignup: () => ({
-    mutationFn: ({
-      payload,
-      kyInstance,
-      options,
-    }: TAuthApiRequestParameters["postAuthSignup"]) => {
-      return authApi.postAuthSignup({ payload, kyInstance, options });
+    mutationFn: ({ payload }: TAuthApiRequestParameters["postAuthSignup"]) => {
+      return authApi.postAuthSignup({ payload });
     },
     mutationKey: AUTH_MUTATION_KEY.POST_AUTH_SIGNUP,
     meta: {
@@ -1325,12 +1140,8 @@ const mutations = {
     },
   }),
   postAuthLogin: () => ({
-    mutationFn: ({
-      payload,
-      kyInstance,
-      options,
-    }: TAuthApiRequestParameters["postAuthLogin"]) => {
-      return authApi.postAuthLogin({ payload, kyInstance, options });
+    mutationFn: ({ payload }: TAuthApiRequestParameters["postAuthLogin"]) => {
+      return authApi.postAuthLogin({ payload });
     },
     mutationKey: AUTH_MUTATION_KEY.POST_AUTH_LOGIN,
     meta: {
@@ -1338,11 +1149,8 @@ const mutations = {
     },
   }),
   postAuthLogout: () => ({
-    mutationFn: ({
-      kyInstance,
-      options,
-    }: TAuthApiRequestParameters["postAuthLogout"]) => {
-      return authApi.postAuthLogout({ kyInstance, options });
+    mutationFn: ({}: TAuthApiRequestParameters["postAuthLogout"]) => {
+      return authApi.postAuthLogout({});
     },
     mutationKey: AUTH_MUTATION_KEY.POST_AUTH_LOGOUT,
     meta: {
@@ -1350,12 +1158,8 @@ const mutations = {
     },
   }),
   postAuthRefresh: () => ({
-    mutationFn: ({
-      payload,
-      kyInstance,
-      options,
-    }: TAuthApiRequestParameters["postAuthRefresh"]) => {
-      return authApi.postAuthRefresh({ payload, kyInstance, options });
+    mutationFn: ({ payload }: TAuthApiRequestParameters["postAuthRefresh"]) => {
+      return authApi.postAuthRefresh({ payload });
     },
     mutationKey: AUTH_MUTATION_KEY.POST_AUTH_REFRESH,
     meta: {
@@ -1473,12 +1277,8 @@ export const CHATS_MUTATION_KEY = {
 
 const mutations = {
   postChats: () => ({
-    mutationFn: ({
-      payload,
-      kyInstance,
-      options,
-    }: TChatsApiRequestParameters["postChats"]) => {
-      return chatsApi.postChats({ payload, kyInstance, options });
+    mutationFn: ({ payload }: TChatsApiRequestParameters["postChats"]) => {
+      return chatsApi.postChats({ payload });
     },
     mutationKey: CHATS_MUTATION_KEY.POST_CHATS,
     meta: {
@@ -1489,15 +1289,8 @@ const mutations = {
     mutationFn: ({
       chatId,
       payload,
-      kyInstance,
-      options,
     }: TChatsApiRequestParameters["patchChatsByChatId"]) => {
-      return chatsApi.patchChatsByChatId({
-        chatId,
-        payload,
-        kyInstance,
-        options,
-      });
+      return chatsApi.patchChatsByChatId({ chatId, payload });
     },
     mutationKey: CHATS_MUTATION_KEY.PATCH_CHATS_CHATID,
     meta: {
@@ -1507,10 +1300,8 @@ const mutations = {
   deleteChatsByChatId: () => ({
     mutationFn: ({
       chatId,
-      kyInstance,
-      options,
     }: TChatsApiRequestParameters["deleteChatsByChatId"]) => {
-      return chatsApi.deleteChatsByChatId({ chatId, kyInstance, options });
+      return chatsApi.deleteChatsByChatId({ chatId });
     },
     mutationKey: CHATS_MUTATION_KEY.DELETE_CHATS_CHATID,
     meta: {
@@ -1604,12 +1395,8 @@ export const USERS_MUTATION_KEY = {
 
 const mutations = {
   patchUsersMe: () => ({
-    mutationFn: ({
-      payload,
-      kyInstance,
-      options,
-    }: TUsersApiRequestParameters["patchUsersMe"]) => {
-      return usersApi.patchUsersMe({ payload, kyInstance, options });
+    mutationFn: ({ payload }: TUsersApiRequestParameters["patchUsersMe"]) => {
+      return usersApi.patchUsersMe({ payload });
     },
     mutationKey: USERS_MUTATION_KEY.PATCH_USERS_ME,
     meta: {
@@ -1617,11 +1404,8 @@ const mutations = {
     },
   }),
   deleteUsersMe: () => ({
-    mutationFn: ({
-      kyInstance,
-      options,
-    }: TUsersApiRequestParameters["deleteUsersMe"]) => {
-      return usersApi.deleteUsersMe({ kyInstance, options });
+    mutationFn: ({}: TUsersApiRequestParameters["deleteUsersMe"]) => {
+      return usersApi.deleteUsersMe({});
     },
     mutationKey: USERS_MUTATION_KEY.DELETE_USERS_ME,
     meta: {
@@ -1723,14 +1507,10 @@ const queries = {
    * @summary Get Chats
    * @request GET:/chats*
    */
-  getChats: ({
-    params,
-    kyInstance,
-    options,
-  }: TChatsApiRequestParameters["getChats"]) =>
+  getChats: ({ params }: TChatsApiRequestParameters["getChats"]) =>
     queryOptions({
       queryKey: queryKeys.getChats.queryKey(params),
-      queryFn: () => chatsApi.getChats({ params, kyInstance, options }),
+      queryFn: () => chatsApi.getChats({ params }),
     }),
 
   /**
@@ -1740,12 +1520,10 @@ const queries = {
    */
   getChatsByChatId: ({
     chatId,
-    kyInstance,
-    options,
   }: TChatsApiRequestParameters["getChatsByChatId"]) =>
     queryOptions({
       queryKey: queryKeys.getChatsByChatId.queryKey(chatId),
-      queryFn: () => chatsApi.getChatsByChatId({ chatId, kyInstance, options }),
+      queryFn: () => chatsApi.getChatsByChatId({ chatId }),
       staleTime: Number.POSITIVE_INFINITY,
     }),
 
@@ -1756,13 +1534,10 @@ const queries = {
    */
   getChatsByChatIdMessages: ({
     chatId,
-    kyInstance,
-    options,
   }: TChatsApiRequestParameters["getChatsByChatIdMessages"]) =>
     queryOptions({
       queryKey: queryKeys.getChatsByChatIdMessages.queryKey(chatId),
-      queryFn: () =>
-        chatsApi.getChatsByChatIdMessages({ chatId, kyInstance, options }),
+      queryFn: () => chatsApi.getChatsByChatIdMessages({ chatId }),
     }),
 
   /**
@@ -1772,13 +1547,10 @@ const queries = {
    */
   getChatsByChatIdStreamStatus: ({
     chatId,
-    kyInstance,
-    options,
   }: TChatsApiRequestParameters["getChatsByChatIdStreamStatus"]) =>
     queryOptions({
       queryKey: queryKeys.getChatsByChatIdStreamStatus.queryKey(chatId),
-      queryFn: () =>
-        chatsApi.getChatsByChatIdStreamStatus({ chatId, kyInstance, options }),
+      queryFn: () => chatsApi.getChatsByChatIdStreamStatus({ chatId }),
     }),
 };
 
@@ -1810,13 +1582,10 @@ const queries = {
    * @summary Get Current User
    * @request GET:/users/me*
    */
-  getUsersMe: ({
-    kyInstance,
-    options,
-  }: TUsersApiRequestParameters["getUsersMe"]) =>
+  getUsersMe: ({}: TUsersApiRequestParameters["getUsersMe"]) =>
     queryOptions({
       queryKey: queryKeys.getUsersMe.queryKey(),
-      queryFn: () => usersApi.getUsersMe({ kyInstance, options }),
+      queryFn: () => usersApi.getUsersMe({}),
       staleTime: Number.POSITIVE_INFINITY,
       gcTime: Number.POSITIVE_INFINITY,
     }),
@@ -1914,12 +1683,8 @@ export const PETS_MUTATION_KEY = {
 
 const mutations = {
   postPets: () => ({
-    mutationFn: ({
-      payload,
-      kyInstance,
-      options,
-    }: TPetsApiRequestParameters["postPets"]) => {
-      return petsApi.postPets({ payload, kyInstance, options });
+    mutationFn: ({ payload }: TPetsApiRequestParameters["postPets"]) => {
+      return petsApi.postPets({ payload });
     },
     mutationKey: PETS_MUTATION_KEY.POST_PETS,
     meta: {
@@ -1930,10 +1695,8 @@ const mutations = {
     mutationFn: ({
       petId,
       payload,
-      kyInstance,
-      options,
     }: TPetsApiRequestParameters["putPetsByPetId"]) => {
-      return petsApi.putPetsByPetId({ petId, payload, kyInstance, options });
+      return petsApi.putPetsByPetId({ petId, payload });
     },
     mutationKey: PETS_MUTATION_KEY.PUT_PETS_PETID,
     meta: {
@@ -1941,12 +1704,8 @@ const mutations = {
     },
   }),
   deletePetsByPetId: () => ({
-    mutationFn: ({
-      petId,
-      kyInstance,
-      options,
-    }: TPetsApiRequestParameters["deletePetsByPetId"]) => {
-      return petsApi.deletePetsByPetId({ petId, kyInstance, options });
+    mutationFn: ({ petId }: TPetsApiRequestParameters["deletePetsByPetId"]) => {
+      return petsApi.deletePetsByPetId({ petId });
     },
     mutationKey: PETS_MUTATION_KEY.DELETE_PETS_PETID,
     meta: {
@@ -2056,14 +1815,10 @@ const queries = {
    * @summary List all pets
    * @request GET:/pets*
    */
-  getPets: ({
-    params,
-    kyInstance,
-    options,
-  }: TPetsApiRequestParameters["getPets"]) =>
+  getPets: ({ params }: TPetsApiRequestParameters["getPets"]) =>
     queryOptions({
       queryKey: queryKeys.getPets.queryKey(params),
-      queryFn: () => petsApi.getPets({ params, kyInstance, options }),
+      queryFn: () => petsApi.getPets({ params }),
     }),
 
   /**
@@ -2071,14 +1826,10 @@ const queries = {
    * @summary Get a pet by ID
    * @request GET:/pets/{petId}*
    */
-  getPetsByPetId: ({
-    petId,
-    kyInstance,
-    options,
-  }: TPetsApiRequestParameters["getPetsByPetId"]) =>
+  getPetsByPetId: ({ petId }: TPetsApiRequestParameters["getPetsByPetId"]) =>
     queryOptions({
       queryKey: queryKeys.getPetsByPetId.queryKey(petId),
-      queryFn: () => petsApi.getPetsByPetId({ petId, kyInstance, options }),
+      queryFn: () => petsApi.getPetsByPetId({ petId }),
       staleTime: Number.POSITIVE_INFINITY,
     }),
 };
@@ -2118,10 +1869,10 @@ const queries = {
    * @summary List users
    * @request GET:/users*
    */
-  getUsers: ({ kyInstance, options }: TUsersApiRequestParameters["getUsers"]) =>
+  getUsers: ({}: TUsersApiRequestParameters["getUsers"]) =>
     queryOptions({
       queryKey: queryKeys.getUsers.queryKey(),
-      queryFn: () => usersApi.getUsers({ kyInstance, options }),
+      queryFn: () => usersApi.getUsers({}),
       staleTime: Number.POSITIVE_INFINITY,
       gcTime: Number.POSITIVE_INFINITY,
     }),
@@ -2133,12 +1884,10 @@ const queries = {
    */
   getUsersByUserId: ({
     userId,
-    kyInstance,
-    options,
   }: TUsersApiRequestParameters["getUsersByUserId"]) =>
     queryOptions({
       queryKey: queryKeys.getUsersByUserId.queryKey(userId),
-      queryFn: () => usersApi.getUsersByUserId({ userId, kyInstance, options }),
+      queryFn: () => usersApi.getUsersByUserId({ userId }),
     }),
 };
 

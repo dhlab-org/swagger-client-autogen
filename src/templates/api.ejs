@@ -16,10 +16,10 @@ const resolveRelativeImportPath = moduleConfig.utils.resolveRelativeImportPath({
 })
 %>
 
-import type { KyInstance, Options } from 'ky';
 import { type ZodSchema, z } from 'zod';
 import { match } from 'ts-pattern';
 
+<%~ includeFile('./imports/http-client-import.ejs', { ...it, codegenConfig, resolveRelativeImportPath }) %>
 <%~ codegenConfig.createSchema && includeFile('./imports/schema-import.ejs', { ...it, codegenConfig, resolveRelativeImportPath }) %>
 <%~ includeFile('./imports/dto-import.ejs', { ...it, codegenConfig, resolveRelativeImportPath }) %>
 <%~ includeFile('./imports/stream-import.ejs', { ...it, codegenConfig, resolveRelativeImportPath }) %>
@@ -27,10 +27,10 @@ import { match } from 'ts-pattern';
 
 
 export class <%= moduleConfig.apiClassName %> {
-private readonly instance: KyInstance;
+private readonly httpClient: HttpClient;
 
-constructor(instance: KyInstance) {
-this.instance = instance;
+constructor(httpClient: HttpClient) {
+this.httpClient = httpClient;
 }
 
 <% for (const route of routes) { %>

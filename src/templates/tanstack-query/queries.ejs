@@ -21,8 +21,6 @@ const resolveRelativeImportPath = moduleConfig.utils.resolveRelativeImportPath({
 <% if (queryRoutes?.length) { %>
 import { useQuery, useSuspenseQuery, queryOptions } from '@tanstack/react-query';
 import type { DefaultError, UseQueryOptions, UseSuspenseQueryOptions } from '@tanstack/react-query';
-import type { KyInstance, Options } from 'ky';
-
 <%~ includeFile('../imports/dto-import.ejs', { ...it, codegenConfig, resolveRelativeImportPath }) %>
 
 <%~ includeFile('../imports/api-class.ejs', { ...it, moduleConfig, codegenConfig, resolveRelativeImportPath }) %>

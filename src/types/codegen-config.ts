@@ -1,9 +1,12 @@
+import type { HttpClientType } from './http-client';
+
 export type InputCodegenConfig = {
   uri: string;
   username?: string;
   password?: string;
   createSchema: boolean;
   createQueryHook?: boolean;
+  httpClient?: HttpClientType;
   customOutput?: {
     aliasInfo: {
       aliasMap: Record<string, string>;
@@ -21,6 +24,7 @@ export type InputCodegenConfig = {
       typeGuards?: string;
       streamHandlers?: string;
       globalMutationEffectType?: string;
+      httpClient?: string;
     };
   };
 };
